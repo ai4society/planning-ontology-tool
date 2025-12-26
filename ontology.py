@@ -913,8 +913,8 @@ class ProblemFunctions():
         index_dict = find_parens(block_text)
         ind_list = sorted(list(index_dict.keys()))[1:]
 
-        # Skip the outer 'and' if present
-        if "and" in block_text[ind_list[0]:ind_list[0]+4]:
+        # Skip the outer 'and' if present (case-insensitive)
+        if "and" in block_text[ind_list[0]:ind_list[0]+4].lower():
             ind_list = ind_list[1:]
 
         states = []

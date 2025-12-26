@@ -211,12 +211,16 @@ define(function (require, exports, module) {
           position:absolute; top:10px; left:16px;
           max-width:calc(100% - 400px);
           z-index:10;
+          display:flex; flex-direction:column; gap:12px;
         }
         .kg-header-top{
-          display:flex; align-items:center; gap:8px; margin-bottom:4px;
+          display:flex; align-items:center; gap:8px;
         }
         .kg-header-actions{
           display:flex; align-items:center; gap:6px; flex-shrink:0;
+        }
+        .kg-header-download{
+          display:flex; align-items:center;
         }
         .kg-action-btn{
           display:inline-flex; align-items:center; justify-content:center;
@@ -499,20 +503,54 @@ define(function (require, exports, module) {
           font-size:13px; min-height:80px; color:${COLORS.textPrimary};
         }
         .sparql-output-empty{ color:${COLORS.textMuted}; font-style:italic; }
-        .sparql-output .kg-grid{ width:100%; border-collapse:collapse; font-size:12px; }
+        .sparql-output .kg-grid{
+          width:100%; border-collapse:collapse; font-size:12px;
+          table-layout:auto;
+        }
         .sparql-output .kg-grid th{
           padding:10px 12px; background:${COLORS.primary}; color:${COLORS.surface};
           text-align:left; font-weight:600; border:none;
+          word-break:break-word; max-width:200px;
         }
         .sparql-output .kg-grid th:first-child{ border-radius:6px 0 0 0; }
         .sparql-output .kg-grid th:last-child{ border-radius:0 6px 0 0; }
         .sparql-output .kg-grid td{
           padding:10px 12px; border-bottom:1px solid ${COLORS.borderLight};
-          color:${COLORS.textPrimary};
+          color:${COLORS.textPrimary}; word-wrap:break-word;
+          word-break:break-word; max-width:300px;
+        }
+        .sparql-output .kg-grid td.text-long{
+          max-width:400px; white-space:pre-wrap;
+          line-height:1.5; cursor:pointer; position:relative;
+        }
+        .sparql-output .kg-grid td.text-long::after{
+          content:''; display:inline-block; width:100%; background:linear-gradient(to right, transparent 90%, ${COLORS.surface});
+        }
+        .sparql-output .kg-grid td.text-expandable{
+          background:${COLORS.background}; padding:12px;
+        }
+        .sparql-output .kg-grid td.text-expandable summary{
+          cursor:pointer; font-weight:500; color:${COLORS.primary}; padding:8px 0;
+          user-select:none;
+        }
+        .sparql-output .kg-grid td.text-expandable summary:hover{
+          text-decoration:underline;
+        }
+        .sparql-output .kg-grid td.text-expandable p{
+          margin:8px 0 0 0; padding:8px; background:${COLORS.surface};
+          border-left:3px solid ${COLORS.primary}; border-radius:4px;
+          white-space:pre-wrap; word-wrap:break-word; line-height:1.5;
+          max-height:300px; overflow-y:auto;
         }
         .sparql-output .kg-grid tbody tr:hover{ background:${COLORS.hover}; }
         .sparql-output .kg-grid tbody tr:nth-child(even){ background:${COLORS.background}; }
         .sparql-output .kg-grid tbody tr:nth-child(even):hover{ background:${COLORS.hover}; }
+        .sparql-output .kg-grid tbody tr[data-expanded] td.text-expandable summary::before{
+          content:'▼ '; color:${COLORS.primary};
+        }
+        .sparql-output .kg-grid tbody tr:not([data-expanded]) td.text-expandable summary::before{
+          content:'▶ '; color:${COLORS.primary};
+        }
 
         /* Node popup for clicked nodes */
         .kg-node-popup{
@@ -577,12 +615,14 @@ define(function (require, exports, module) {
           <div class="kg-header-top">
             <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
             <div class="kg-header-actions">
-              <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download Knowledge Graph">
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                 Download Knowledge Graph
-              </button>
               <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
             </div>
+          </div>
+          <div class="kg-header-download">
+            <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download Knowledge Graph">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+               Download Knowledge Graph
+            </button>
           </div>
         </div>
 
@@ -1782,12 +1822,45 @@ define(function (require, exports, module) {
 
         rows.forEach(row => {
           html += "<tr>";
-          html += cols.map(key => `<td>${formatValue(row[key])}</td>`).join("");
+          html += cols.map(key => {
+            const value = formatValue(row[key]);
+            const valueStr = String(value || '');
+            // Detect if content is long (more than 80 characters) or contains newlines
+            const isLongText = valueStr.length > 80 || valueStr.includes('\n');
+
+            if (isLongText) {
+              // Create expandable section for long text
+              const summary = valueStr.substring(0, 77) + (valueStr.length > 77 ? '...' : '');
+              return `<td class='text-expandable'><summary>${summary}</summary><p style='display:none;'>${valueStr.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p></td>`;
+            } else {
+              return `<td>${value}</td>`;
+            }
+          }).join("");
           html += "</tr>";
         });
 
         html += "</tbody></table>";
         outputEl.innerHTML = html;
+
+        // Add toggle functionality for expandable text
+        document.querySelectorAll('.sparql-output .kg-grid td.text-expandable summary').forEach(summary => {
+          summary.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const td = summary.parentElement;
+            const row = td.closest('tr');
+            const p = td.querySelector('p');
+            const isExpanded = row.hasAttribute('data-expanded');
+
+            if (isExpanded) {
+              p.style.display = 'none';
+              row.removeAttribute('data-expanded');
+            } else {
+              p.style.display = 'block';
+              row.setAttribute('data-expanded', 'true');
+            }
+          });
+        });
       })
       .catch(err => {
         clearTimeout(timeout);
