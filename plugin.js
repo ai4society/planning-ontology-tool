@@ -1021,12 +1021,6 @@ define(function (require, exports, module) {
           <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
         </div>
         <div class="kg-node-popup-row">
-        </div>
-        <div class="kg-node-popup-row">
-          <span class="kg-node-popup-label">Connections</span>
-          <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
-        </div>
-        <div class="kg-node-popup-row">
           <span class="kg-node-popup-label">URI</span>
           <span class="kg-node-popup-value" style="font-size:10px; opacity:0.7;">${shortLabel(d.id)}</span>
         </div>
