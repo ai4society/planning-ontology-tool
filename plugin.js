@@ -1,6 +1,6 @@
   // --- General Configs ---
-  const PY_MODULE_URL = "https://gistcdn.githack.com/BernardoDenkvitts/ec102fd60753ac142ff0d41ab317dfc9/raw/3513948eb1f74d8138ac01bba214327a90ce5702/ontology_generator.py";
-  const PY_MODULE_NAME = "ontology_generator";
+  const PY_MODULE_URL = "https://rawcdn.githack.com/ai4society/planning-ontology-tool/a22b4b08aad6e0089ff199eaa5a3d34167ab51f7/ontology.py";
+  const PY_MODULE_NAME = "ontology";
   const PY_FUNC_NAME   = "create_ontology";
 
   const RDF_TYPE_PREDICATE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
