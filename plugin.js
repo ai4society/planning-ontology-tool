@@ -298,9 +298,10 @@
           width:300px; min-width:280px; max-width:50vw; height:100%;
           background:${COLORS.background}; border-right:1px solid ${COLORS.border};
           display:flex; flex-direction:column; overflow:hidden; resize:horizontal;
+          padding-top:50px; /* Leave room for main header */
         }
         .kg-templates-header{
-          padding:16px; padding-top:12px; border-bottom:1px solid ${COLORS.border};
+          padding:14px 16px; border-bottom:1px solid ${COLORS.border};
           background:linear-gradient(135deg, ${COLORS.primary} 0%, #A04545 100%);
         }
         .kg-templates-title{
