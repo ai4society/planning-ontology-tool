@@ -194,13 +194,24 @@
 
         /* Header with title and info button */
         .kg-header{
-          position:absolute; top:12px; left:16px;
-          display:flex; align-items:center; gap:10px;
+          position:absolute; top:10px; left:16px; right:376px;
           z-index:10;
         }
+        .kg-header-top{
+          display:flex; align-items:center; gap:10px; margin-bottom:4px;
+        }
         .kg-title{
-          font-size:18px; font-weight:600; color:${COLORS.primary};
+          font-size:17px; font-weight:600; color:${COLORS.primary};
           margin:0; letter-spacing:-0.3px;
+        }
+        .kg-description{
+          font-size:11px; line-height:1.4; color:${COLORS.textSecondary};
+          margin:0; max-width:600px;
+        }
+        .kg-description em{ color:${COLORS.primary}; font-style:italic; }
+        .kg-description .kg-link{
+          color:${COLORS.accentBlue}; cursor:pointer; text-decoration:underline;
+          font-weight:500;
         }
         .kg-info-btn{
           width:26px; height:26px; border-radius:50%;
@@ -274,13 +285,6 @@
         }
         .kg-copy-btn:hover{ background:${COLORS.primaryHover}; }
 
-        /* Floating controls below header */
-        .kg-controls{
-          position:absolute; top:48px; left:16px;
-          display:flex; flex-direction:column; align-items:flex-start; gap:5px;
-          z-index:5;
-        }
-
         /* Base button style */
         .kg-btn{
           display:inline-flex; align-items:center; justify-content:center;
@@ -317,13 +321,13 @@
           transition:all 0.25s ease;
         }
         .kg-query-template:hover{
-          box-shadow:0 4px 12px rgba(139,58,58,0.15);
-          border-color:${COLORS.primary};
+          box-shadow:0 2px 8px rgba(0,0,0,0.08);
+          border-color:${COLORS.textMuted};
           transform:translateY(-1px);
         }
         .kg-query-template.is-open{
-          box-shadow:0 4px 16px rgba(139,58,58,0.2);
-          border-color:${COLORS.primary};
+          box-shadow:0 2px 10px rgba(0,0,0,0.1);
+          border-color:${COLORS.textMuted};
         }
         .kg-template-header{
           width:100%; padding:12px 14px; background:${COLORS.surface};
@@ -519,8 +523,14 @@
       <div id="${viewerId}" class="kg-root">
         <!-- Header with title and info button -->
         <div class="kg-header">
-          <h1 class="kg-title">Planning Ontology</h1>
-          <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
+          <div class="kg-header-top">
+            <h1 class="kg-title">Planning Ontology</h1>
+            <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
+          </div>
+          <p class="kg-description">
+            An <em>ontology</em> to represent and exploit <em>planning knowledge</em> for performance efficiency.
+            Click <span class="kg-link" id="${viewerId}-info-link">info</span> for resources, citation & details.
+          </p>
         </div>
 
         <!-- Info Popup Modal -->
@@ -569,11 +579,6 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Controls below header -->
-        <div class="kg-controls">
-          <span class="slot-download" id="${viewerId}-download-slot"></span>
         </div>
 
         <!-- Templates panel -->
@@ -802,14 +807,22 @@
    */
     function attachInfoPopupHandler(viewerId) {
       const infoBtn = document.getElementById(`${viewerId}-info-btn`);
+      const infoLink = document.getElementById(`${viewerId}-info-link`);
       const infoPopup = document.getElementById(`${viewerId}-info-popup`);
       const closeBtn = document.getElementById(`${viewerId}-info-close`);
       const copyBtn = document.getElementById(`${viewerId}-copy-bibtex`);
 
-      // Open popup
+      // Open popup from info button
       infoBtn.addEventListener('click', () => {
         infoPopup.style.display = 'flex';
       });
+
+      // Open popup from description link
+      if (infoLink) {
+        infoLink.addEventListener('click', () => {
+          infoPopup.style.display = 'flex';
+        });
+      }
 
       // Close popup via X button
       closeBtn.addEventListener('click', () => {
@@ -1094,34 +1107,6 @@
     }
 
     /**
-     * Inject a Download button into the viewer controls.
-     * Creates a Blob and triggers a browser download when clicked.
-     * @param {HTMLElement} container - The viewer root (with .kg-controls inside).
-     * @param {string} ontologyString - RDF/XML content to download.
-   */
-    function attachDownloadLink(container, ontologyString) {
-      const btn = document.createElement("button");
-      btn.textContent = "Download OWL file";
-      btn.className = "kg-btn kg-download-btn";
-
-      btn.addEventListener("click", () => {
-        // Create a Blob each click (so content is always current).
-        const blob = new Blob([ontologyString], { type: "application/rdf+xml;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const downloadLink = document.createElement("a");
-        downloadLink.href = url;
-        downloadLink.download = "ontology.owl";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        downloadLink.remove();
-        URL.revokeObjectURL(url);
-      });
-
-      const slot = container.querySelector('.kg-controls .slot-download');
-      slot.appendChild(btn);
-    }
-
-    /**
      * Populate domain/problem dropdowns by scanning open PDDL editors.
      * Uses a simple regex to detect "(domain" vs "(problem)" in the content.
    */
@@ -1321,7 +1306,6 @@
         renderD3Graph(container, graphData, nodePopupHandler);
 
         attachSparqlQueryHandler(store, container.id);
-        attachDownloadLink(container, ontologyString);
         updateGraphInfo(viewerId, store, graphData);
 
         // Start info button glow animation
