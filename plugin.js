@@ -199,34 +199,31 @@ define(function (require, exports, module) {
     return `<style>
         .kg-root{
           width:100%; height:100%;
-          display:flex; flex-direction:column;
-          background:${COLORS.surface}; overflow:hidden;
+          display:grid;
+          grid-template-columns: auto 1fr 360px;
+          grid-template-areas: "templates canvas sparql";
+          background:${COLORS.surface}; overflow:hidden; position:relative;
           font-family: "Inter", "Segoe UI", Arial, sans-serif;
         }
 
-        /* Header with title and info button */
+        /* Header inside templates panel */
         .kg-header{
-          display:flex; align-items:center; justify-content:space-between; gap:12px;
+          display:flex; flex-direction:column; gap:8px;
           padding:10px 16px; border-bottom:1px solid ${COLORS.borderLight};
           flex-shrink:0; background:${COLORS.surface};
+        }
+        .kg-header-top{
+          display:flex; align-items:center; justify-content:space-between; gap:12px;
         }
         .kg-header-actions{
           display:flex; align-items:center; gap:6px; flex-shrink:0;
         }
 
-        /* Actions bar (download button) */
+        /* Download button bar inside templates panel */
         .kg-actions-bar{
           display:flex; align-items:center; gap:8px;
           padding:8px 16px; border-bottom:1px solid ${COLORS.borderLight};
           flex-shrink:0; background:${COLORS.surface};
-        }
-
-        /* Main content area with grid layout */
-        .kg-main{
-          display:grid;
-          grid-template-columns: auto 1fr 360px;
-          grid-template-areas: "templates canvas sparql";
-          flex:1; overflow:hidden;
         }
 
         .kg-action-btn{
@@ -354,7 +351,6 @@ define(function (require, exports, module) {
           width:300px; min-width:280px; max-width:50vw; height:100%;
           background:${COLORS.background}; border-right:1px solid ${COLORS.border};
           display:flex; flex-direction:column; overflow:hidden; resize:horizontal;
-          padding-top:50px; /* Leave room for main header */
         }
         .kg-templates-header{
           padding:10px 16px; border-bottom:1px solid ${COLORS.border};
@@ -617,22 +613,6 @@ define(function (require, exports, module) {
       </style>
 
       <div id="${viewerId}" class="kg-root">
-        <!-- Header with title and info button -->
-        <div class="kg-header">
-          <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
-          <div class="kg-header-actions">
-            <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
-          </div>
-        </div>
-
-        <!-- Actions bar with download button -->
-        <div class="kg-actions-bar">
-          <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download Knowledge Graph">
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-             Download Knowledge Graph
-          </button>
-        </div>
-
         <!-- Info Popup Modal -->
         <div class="kg-info-popup" id="${viewerId}-info-popup" style="display:none;">
           <div class="kg-info-popup-content">
@@ -681,10 +661,27 @@ define(function (require, exports, module) {
           </div>
         </div>
 
-        <!-- Main content area (templates, canvas, sparql) -->
-        <div class="kg-main">
         <!-- Templates panel -->
         <aside class="kg-templates-panel" id="${viewerId}-templates-panel">
+          <!-- Header inside templates panel -->
+          <div class="kg-header">
+            <div class="kg-header-top">
+              <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
+              <div class="kg-header-actions">
+                <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions bar inside templates panel -->
+          <div class="kg-actions-bar">
+            <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download Knowledge Graph">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+               Download Knowledge Graph
+            </button>
+          </div>
+
+          <!-- Templates header and content -->
           <div class="kg-templates-header">
             <h2 class="kg-templates-title">Query Templates</h2>
           </div>
@@ -749,7 +746,6 @@ define(function (require, exports, module) {
             </div>
           </div>
         </aside>
-        </div>
       </div>`;
   }
 
