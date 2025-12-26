@@ -1,5 +1,5 @@
 // --- General Configs ---
-const PY_MODULE_URL = "https://rawcdn.githack.com/ai4society/planning-ontology-tool/1c94d2fe18f7276510c75dcf38e98b45f97f3cda/ontology.py";
+const PY_MODULE_URL = "https://rawcdn.githack.com/ai4society/planning-ontology-tool/3603308c506f68f1f3dcfbbfefae32b2123b0497/ontology.py";
 const PY_MODULE_NAME = "ontology";
 const PY_FUNC_NAME = "create_ontology";
 
