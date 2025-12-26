@@ -1163,9 +1163,9 @@
      * @returns {string}
    */
     function escapeSelector(id) {
-      if (window.CSS && CSS.escape)
-        return CSS.escape(id);
-      return id.replace(/([ #;?%&,.+*~\\':"!^$[\\]()=>|\\/])/g, '\\$1');
+      if (window.CSS && CSS.escape) return CSS.escape(id);
+      // Escape characters that are unsafe in CSS selectors
+      return id.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, '\\$1');
     }
 
     /**
