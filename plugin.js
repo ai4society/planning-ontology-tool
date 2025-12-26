@@ -206,18 +206,19 @@ define(function (require, exports, module) {
 
         /* Header with title and info button */
         .kg-header{
-          display:flex; flex-direction:column; gap:12px;
+          display:flex; align-items:center; justify-content:space-between; gap:12px;
           padding:10px 16px; border-bottom:1px solid ${COLORS.borderLight};
           flex-shrink:0; background:${COLORS.surface};
-        }
-        .kg-header-top{
-          display:flex; align-items:center; gap:8px;
         }
         .kg-header-actions{
           display:flex; align-items:center; gap:6px; flex-shrink:0;
         }
-        .kg-header-download{
-          display:flex; align-items:center;
+
+        /* Actions bar (download button) */
+        .kg-actions-bar{
+          display:flex; align-items:center; gap:8px;
+          padding:8px 16px; border-bottom:1px solid ${COLORS.borderLight};
+          flex-shrink:0; background:${COLORS.surface};
         }
 
         /* Main content area with grid layout */
@@ -618,18 +619,18 @@ define(function (require, exports, module) {
       <div id="${viewerId}" class="kg-root">
         <!-- Header with title and info button -->
         <div class="kg-header">
-          <div class="kg-header-top">
-            <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
-            <div class="kg-header-actions">
-              <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
-            </div>
+          <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
+          <div class="kg-header-actions">
+            <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
           </div>
-          <div class="kg-header-download">
-            <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download Knowledge Graph">
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-               Download Knowledge Graph
-            </button>
-          </div>
+        </div>
+
+        <!-- Actions bar with download button -->
+        <div class="kg-actions-bar">
+          <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download Knowledge Graph">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+             Download Knowledge Graph
+          </button>
         </div>
 
         <!-- Info Popup Modal -->
