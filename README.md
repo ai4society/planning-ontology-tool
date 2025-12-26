@@ -4,7 +4,7 @@
 
 The current plugin installation URL is:
 
-`https://rawcdn.githack.com/ai4society/planning-ontology-tool/f1043f9384a85488147e79465ad8d8b056b701bc/plugin.js`
+`https://rawcdn.githack.com/ai4society/planning-ontology-tool/7264db74830182cf302032a263ffd0ac0075b915/plugin.js`
 
 ---
 
