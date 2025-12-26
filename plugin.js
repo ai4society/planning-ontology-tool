@@ -208,28 +208,29 @@ define(function (require, exports, module) {
 
         /* Header with title and info button */
         .kg-header{
-          position:absolute; top:10px; left:16px; right:376px;
+          position:absolute; top:10px; left:16px;
+          max-width:calc(100% - 400px);
           z-index:10;
         }
         .kg-header-top{
-          display:flex; align-items:center; gap:10px; margin-bottom:4px;
+          display:flex; align-items:center; gap:8px; margin-bottom:4px;
         }
         .kg-header-actions{
-          display:flex; align-items:center; gap:8px; margin-left:auto;
+          display:flex; align-items:center; gap:6px; flex-shrink:0;
         }
         .kg-action-btn{
           display:inline-flex; align-items:center; justify-content:center;
-          padding:6px 12px; border-radius:4px;
+          padding:5px 10px; border-radius:4px;
           border:1.5px solid ${COLORS.primary}; background:${COLORS.surface};
-          color:${COLORS.primary}; cursor:pointer; font-size:13px; font-weight:500;
+          color:${COLORS.primary}; cursor:pointer; font-size:12px; font-weight:500;
           font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          transition:all 0.2s ease; white-space:nowrap;
+          transition:all 0.2s ease; white-space:nowrap; min-height:26px;
         }
         .kg-action-btn:hover{
           background:${COLORS.primary}; color:${COLORS.surface};
         }
         .kg-action-btn svg{
-          transition:all 0.2s ease;
+          transition:all 0.2s ease; flex-shrink:0;
         }
         .kg-action-btn:hover svg{
           stroke:${COLORS.surface};
@@ -778,6 +779,105 @@ define(function (require, exports, module) {
               ?step plan:hasStepNumber ?stepNumber .
               ?step rdfs:label ?stepLabel .
             } ORDER BY ?stepNumber`),
+        defaultOpen: false
+      },
+      {
+        title: "Plan Explanation",
+        description: "Show plan cost and detailed explanation",
+        query: formatQuery(`
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+            PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
+
+            SELECT ?planLabel ?cost ?explanation WHERE {
+              ?plan rdf:type dul:Plan .
+              ?plan rdfs:label ?planLabel .
+              ?plan plan:hasPlanCost ?cost .
+              OPTIONAL { ?plan plan:hasPlanExplanation ?explanation . }
+            }`),
+        defaultOpen: false
+      },
+      {
+        title: "Problem Objects",
+        description: "List all objects defined in the problem",
+        query: formatQuery(`
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+
+            SELECT ?problemLabel ?objectLabel WHERE {
+              ?problem rdf:type plan:problem .
+              ?problem rdfs:label ?problemLabel .
+              ?problem plan:hasObject ?obj .
+              ?obj rdfs:label ?objectLabel .
+            } ORDER BY ?problemLabel ?objectLabel`),
+        defaultOpen: false
+      },
+      {
+        title: "Initial State",
+        description: "Show initial state predicates",
+        query: formatQuery(`
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+
+            SELECT ?problemLabel ?stateLabel WHERE {
+              ?problem rdf:type plan:problem .
+              ?problem rdfs:label ?problemLabel .
+              ?problem plan:hasInitialState ?state .
+              ?state rdfs:label ?stateLabel .
+            } ORDER BY ?problemLabel`),
+        defaultOpen: false
+      },
+      {
+        title: "Goal State",
+        description: "Show goal state predicates",
+        query: formatQuery(`
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+
+            SELECT ?problemLabel ?goalLabel WHERE {
+              ?problem rdf:type plan:problem .
+              ?problem rdfs:label ?problemLabel .
+              ?problem plan:hasGoalState ?goal .
+              ?goal rdfs:label ?goalLabel .
+            } ORDER BY ?problemLabel`),
+        defaultOpen: false
+      },
+      {
+        title: "Action Parameters",
+        description: "Show parameters for each action with their types",
+        query: formatQuery(`
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+
+            SELECT ?actionLabel ?paramLabel ?typeLabel WHERE {
+              ?action rdf:type plan:action .
+              ?action rdfs:label ?actionLabel .
+              ?action plan:hasParameter ?param .
+              ?param rdfs:label ?paramLabel .
+              ?param plan:ofType ?type .
+              ?type rdfs:label ?typeLabel .
+            } ORDER BY ?actionLabel ?paramLabel`),
+        defaultOpen: false
+      },
+      {
+        title: "Domain Predicates",
+        description: "List all predicates defined in the domain",
+        query: formatQuery(`
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+
+            SELECT ?domainLabel ?predicateLabel WHERE {
+              ?domain rdf:type plan:domain .
+              ?domain rdfs:label ?domainLabel .
+              ?domain plan:hasPredicate ?pred .
+              ?pred rdfs:label ?predicateLabel .
+            } ORDER BY ?domainLabel ?predicateLabel`),
         defaultOpen: false
       }
     ];
@@ -1645,7 +1745,10 @@ define(function (require, exports, module) {
           if (typeof term === 'object') {
             // For Literals (including typed literals like xsd:Integer)
             if (term.termType === 'Literal') {
-              return term.value; // Returns the actual value (e.g., "3" for step numbers)
+              // Extract the actual value from typed literals
+              const value = term.value;
+              // Ensure we return the value, not the datatype
+              return value ? String(value) : "";
             }
             // For URIs/Named Nodes
             if (term.termType === 'NamedNode' && term.value) {
@@ -1657,7 +1760,13 @@ define(function (require, exports, module) {
             }
             // Fallback for objects with .value property
             if (term.value) {
-              return term.value;
+              // Make sure it's not a datatype URI
+              const strValue = String(term.value);
+              if (strValue.includes('XMLSchema#') || strValue.includes('datatype')) {
+                // This is a datatype - try to extract the actual value
+                return term.value.split('#').pop() || term.value;
+              }
+              return strValue;
             }
           }
 
