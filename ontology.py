@@ -422,6 +422,15 @@ class OntologyBuilder:
         from rdflib.namespace import XSD
         self.g.add((plan_URI, self.planOntology.hasPlanCost, Literal(len(plan_actions), datatype=XSD.nonNegativeInteger)))
 
+        # Create a formatted string for the entire plan (for display in popup)
+        plan_text = ""
+        for i, action in enumerate(plan_actions, 1):
+            plan_text += f"{i}. {action}\n"
+        
+        # Add the formatted plan as a comment
+        if plan_text:
+            self.g.add((plan_URI, RDFS.comment, Literal(plan_text.strip())))
+
         # Add each plan step as a plan action
         for i, action in enumerate(plan_actions, 1):
             step_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + f'_plan_step_{i}')
@@ -429,6 +438,10 @@ class OntologyBuilder:
             self.g.add((step_URI, RDFS.label, Literal(f"Step {i}: {action}")))
             self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.nonNegativeInteger)))
             self.g.add((plan_URI, self.planOntology.hasPlanStep, step_URI))
+            
+            # Temporary: Add dynamic properties hasStep_1, hasStep_2, etc. as requested
+            dynamic_step_prop = URIRef(self.planOntology + f"hasStep_{i}")
+            self.g.add((plan_URI, dynamic_step_prop, step_URI))
 
 def find_parens(s):
     """

@@ -10,8 +10,6 @@ const RDF_IGNORE_PREDICATES = [
   RDF_TYPE_PREDICATE,
   RDF_LABEL_PREDICATE,
   "http://www.w3.org/2000/01/rdf-schema#subClassOf",
-  "http://www.w3.org/2000/01/rdf-schema#domain",
-  "http://www.w3.org/2000/01/rdf-schema#range",
   "http://www.w3.org/2000/01/rdf-schema#comment",
   "http://www.w3.org/2002/07/owl#inverseOf",
   "http://www.w3.org/2002/07/owl#versionIRI"
@@ -504,7 +502,7 @@ define(function (require, exports, module) {
           to{ opacity:1; transform:scale(1) translateY(0); }
         }
         .kg-node-popup-header{
-          padding:12px 14px; background:${COLORS.primary};
+          padding:8px 14px; background:${COLORS.primary};
           display:flex; justify-content:space-between; align-items:center;
         }
         .kg-node-popup-title{
@@ -538,6 +536,12 @@ define(function (require, exports, module) {
         .kg-node-popup-timer{
           padding:8px 14px; background:${COLORS.background};
           font-size:10px; color:${COLORS.textMuted}; text-align:center;
+        }
+        .kg-node-popup-comment{
+          padding:8px 14px; background:${COLORS.background}; border-top:1px solid ${COLORS.borderLight};
+          font-size:11px; line-height:1.4; color:${COLORS.textPrimary};
+          max-height:200px; overflow-y:auto; white-space:pre-wrap;
+          font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
       </style>
 
@@ -994,27 +998,10 @@ define(function (require, exports, module) {
       return { incoming, outgoing };
     };
 
-    // Get domain and range info from store
-    const getNodeMetadata = (nodeId) => {
-      let domain = null;
-      let range = null;
-      let comment = null;
-
-      store.statements.forEach(st => {
-        if (st.subject.value === nodeId) {
-          if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#domain') {
-            domain = shortLabel(st.object.value);
-          }
-          if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#range') {
-            range = shortLabel(st.object.value);
-          }
-          if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#comment' && st.object.termType === 'Literal') {
-            comment = st.object.value;
-          }
-        }
-      });
-
-      return { domain, range, comment };
+    // Helper to shorten URIs for display
+    const shortLabel = (uri) => {
+      const parts = uri.split(/#|\//);
+      return parts[parts.length - 1] || uri;
     };
 
     const hidePopup = () => {
@@ -1029,60 +1016,64 @@ define(function (require, exports, module) {
       if (countdownInterval) clearInterval(countdownInterval);
 
       const { incoming, outgoing } = getConnections(d.id);
-      const metadata = getNodeMetadata(d.id);
       const badgeColor = getBadgeColor(d.class);
 
-      // Build popup content
-      let html = `
-          <div class="kg-node-popup-header">
-            <span class="kg-node-popup-title" title="${d.label}">${d.label}</span>
-            <button class="kg-node-popup-close" aria-label="Close">&times;</button>
-          </div>
-          <div class="kg-node-popup-body">
-            <div class="kg-node-popup-row">
-              <span class="kg-node-popup-label">Type</span>
-              <span class="kg-node-popup-value">
-                <span class="kg-node-popup-badge" style="background:${badgeColor}; color:#fff;">
-                  ${d.class}
-                </span>
+      let commentText = "";
+      let popupContent = `
+        <div class="kg-node-popup-header">
+          <h3 class="kg-node-popup-title" title="${d.label}">${d.label}</h3>
+          <button class="kg-node-popup-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="kg-node-popup-body">
+          <div class="kg-node-popup-row">
+            <span class="kg-node-popup-label">Type</span>
+            <span class="kg-node-popup-value">
+              <span class="kg-node-popup-badge" style="background:${badgeColor}; color:#fff;">
+                ${d.class}
               </span>
-            </div>
-            <div class="kg-node-popup-row">
-              <span class="kg-node-popup-label">Connections</span>
-              <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
-            </div>`;
-
-      if (metadata.domain) {
-        html += `
-            <div class="kg-node-popup-row">
-              <span class="kg-node-popup-label">Domain</span>
-              <span class="kg-node-popup-value">${metadata.domain}</span>
-            </div>`;
-      }
-
-      if (metadata.range) {
-        html += `
-            <div class="kg-node-popup-row">
-              <span class="kg-node-popup-label">Range</span>
-              <span class="kg-node-popup-value">${metadata.range}</span>
-            </div>`;
-      }
-
-      if (metadata.comment) {
-        html += `
-            <div class="kg-node-popup-row">
-              <span class="kg-node-popup-label">Comment</span>
-              <span class="kg-node-popup-value">${metadata.comment}</span>
-            </div>`;
-      }
-
-      html += `
+            </span>
           </div>
-          <div class="kg-node-popup-timer">
-            Closing in <span id="${viewerId}-popup-countdown">30</span>s
-          </div>`;
+          <div class="kg-node-popup-row">
+            <span class="kg-node-popup-label">Connections</span>
+            <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
+          </div>
+          <div class="kg-node-popup-row">
+            <span class="kg-node-popup-label">URI</span>
+            <span class="kg-node-popup-value" style="font-size:10px; opacity:0.7;">${shortLabel(d.id)}</span>
+          </div>
+      `;
 
-      popup.innerHTML = html;
+      // Add other properties (excluding label which is in header)
+      store.statements.forEach(st => {
+        if (st.subject.value === d.id && st.object.termType === "Literal") {
+          if (st.predicate.value === RDF_LABEL_PREDICATE) return;
+
+          if (st.predicate.value === "http://www.w3.org/2000/01/rdf-schema#comment") {
+            commentText = st.object.value;
+            return;
+          }
+
+          popupContent += `
+            <div class="kg-node-popup-row">
+              <span class="kg-node-popup-label">${shortLabel(st.predicate.value)}</span>
+              <span class="kg-node-popup-value">${st.object.value}</span>
+            </div>
+          `;
+        }
+      });
+
+      popupContent += `</div>`; // Close body
+
+      if (commentText) {
+        popupContent += `<div class="kg-node-popup-comment">${commentText}</div>`;
+      }
+
+      popupContent += `
+      <div class="kg-node-popup-timer">
+        Closing in <span id="${viewerId}-popup-countdown">30</span>s
+      </div>`;
+
+      popup.innerHTML = popupContent;
 
       // Position popup near the click, but within canvas bounds
       const canvas = popup.parentElement;
@@ -1172,7 +1163,7 @@ define(function (require, exports, module) {
    * Resolve the visible tab label for an editor id, falling back to the id itself.
    * @param {string} editorId
    * @returns {string}
- */
+  */
   function getTabLabel(editorId) {
     const labelEl = document.querySelector(`#tab-${escapeSelector(editorId)}`);
     if (!labelEl) return editorId;
@@ -1184,7 +1175,7 @@ define(function (require, exports, module) {
    * Collect open editor ids/labels. Uses window.pddl_files when available
    * and falls back to scanning tab anchors (captures planner-created "Plan (n)" tabs).
    * @returns {Array<{id:string,label:string}>}
- */
+  */
   function collectOpenEditors() {
     const editors = [];
     const seen = new Set();
@@ -1264,7 +1255,7 @@ define(function (require, exports, module) {
   /**
    * Populate domain/problem/plan dropdowns by scanning open PDDL editors.
    * Uses regex to detect "(domain", "(problem", or plan files (actions starting with "(").
- */
+  */
   function fileChooser() {
     var domainOpts = "", problemOpts = "", planOpts = "";
 
@@ -1309,7 +1300,7 @@ define(function (require, exports, module) {
    * Detects Planning-as-a-Service output or other plan formats.
    * @param {string} txt - File content
    * @returns {boolean} - True if it looks like a plan file
- */
+  */
   function isPlanFile(txt) {
     // Check for Planning-as-a-Service header
     if (/Found Plan/i.test(txt)) return true;
@@ -1341,7 +1332,7 @@ define(function (require, exports, module) {
   /**
    * Handler after user selects domain/problem/plan files.
    * Reads buffers from ACE, calls the Python converter, opens a KG tab with the result.
- */
+  */
   async function onFilesChosen() {
     $('#chooseFiles').modal('hide');
 
@@ -1366,7 +1357,7 @@ define(function (require, exports, module) {
    * This is useful for libraries that expect `window.<lib>` instead of AMD modules.
    * @param {string} url
    * @returns {Promise<void>}
- */
+  */
   function loadScriptGlobal(url) {
     return new Promise(function (resolve, reject) {
       // disable AMD temporarily to avoid dependencies issues
@@ -1399,7 +1390,7 @@ define(function (require, exports, module) {
   /**
    * Initialize the Pyodide runtime once and memoize it on window.pyodideReady.
    * @returns {Promise<any>} - The pyodide instance.
- */
+  */
   async function loadPyodideRuntime() {
     // Creates a shared Promise that other functions can await to ensure Pyodide is loaded
     window.pyodideReady = new Promise((resolve, reject) => {
@@ -1421,7 +1412,7 @@ define(function (require, exports, module) {
    * Load all third-party libs.
    * Uses simple index checks to assert globals are present.
    * Memoized as `window.kgLibsLoading` to prevent duplicate work.
- */
+  */
   async function loadKgLibs() {
     window.toastr.info("Loading dependencies...");
     if (window.kgLibsLoading) return window.kgLibsLoading;
@@ -1481,7 +1472,7 @@ define(function (require, exports, module) {
    * Create a new KG tab, parse/store ontology, render graph,
    * wire SPARQL panel, and attach download link.
    * @param {string} ontologyString - RDF/XML string.
- */
+  */
   async function createKnowledgeGraphTab(ontologyString) {
     try {
       // EditorDomains helper creates a new editor and sets window.current_editor 
@@ -1535,7 +1526,7 @@ define(function (require, exports, module) {
    * Connect SPARQL panel buttons to the Comunica query engine.
    * @param {any} store - rdflib.js store.
    * @param {string} containerId - Viewer root id.
- */
+  */
   function attachSparqlQueryHandler(store, containerId) {
     const inputEl = document.getElementById(`${containerId}-sparql-input`);
     const outputEl = document.getElementById(`${containerId}-sparql-output`);
@@ -1552,7 +1543,7 @@ define(function (require, exports, module) {
    * @param {string} queryString
    * @param {AbortSignal} abortSignal - Supports timeouts/cancellation.
    * @returns {Promise<object[]>} - Rows as JSON bindings from Comunica.
- */
+  */
   async function runComunicaQueryEngine(rdflibStore, queryString, abortSignal) {
     // Convert rdflib statements to N3 quads
     const n3store = new window.N3.Store();
@@ -1572,7 +1563,7 @@ define(function (require, exports, module) {
    * Collect a Node stream into a string and parse as JSON.
    * @param {ReadableStream} stream
    * @returns {Promise<any>}
- */
+  */
   async function streamToJson(stream) {
     return new Promise((resolve, reject) => {
       let result = '';
@@ -1590,7 +1581,7 @@ define(function (require, exports, module) {
    * @param {any} store - rdflib store.
    * @param {HTMLTextAreaElement} inputEl
    * @param {HTMLElement} outputEl - <pre> where results will be shown.
- */
+  */
   function executeSparqlQuery(store, inputEl, outputEl) {
     const queryString = inputEl.value.trim();
     outputEl.textContent = "";
@@ -1644,7 +1635,7 @@ define(function (require, exports, module) {
    * Parse an RDF/XML string into an rdflib.js store, this functions helps to avoid error rendering the knowledge graph.
    * @param {string} ontologyString - RDF/XML content.
    * @returns {any} rdflib store
- */
+  */
   function parseStore(ontologyString) {
     const store = window.$rdf.graph();
     window.$rdf.parse(ontologyString, store, "https://purl.org/ai4s/ontology/planning#", "application/rdf+xml");
@@ -1658,7 +1649,7 @@ define(function (require, exports, module) {
    * - Ignore literals and a small set of noisy predicates.
    * @param {any} store - rdflib store.
    * @returns {{nodes: Array, links: Array}}
- */
+  */
   function buildGraphData(store) {
     const classMap = new Map(); // subject URI -> rdf:type short label
     const labelsMap = new Map(); // subject URI -> rdfs:label
@@ -1722,7 +1713,7 @@ define(function (require, exports, module) {
    * Return a compact label for a URI (everything after last # or /).
    * @param {string} uri
    * @returns {string}
- */
+  */
   function shortLabel(uri) {
     return uri ? uri.split(/[#\/]/).pop() : "";
   }
@@ -1733,7 +1724,7 @@ define(function (require, exports, module) {
    * @param {Map<string,string>} classMap - subject URI -> type label (lowercased).
    * @param {string} domainInstance
    * @returns {"domain"|"problem"|"action"|"parameter"|"effect"|"precondition"|"planner"|"other"}
- */
+  */
   function detectClass(uri, classMap, domainInstance) {
     if (!uri)
       return "other";
