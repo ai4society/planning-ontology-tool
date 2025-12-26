@@ -60,23 +60,36 @@ class PDDLParser:
     def _parse_plan(self):
         """
             Parse a plan file and extract the sequence of actions.
-            Plan files contain lines like: (action-name param1 param2 ...)
-            Handles Planning-as-a-Service output format which includes headers and action definitions.
+            Handles both line-based plans and concatenated strings (DOM text).
+            Ignores PDDL definitions (starting with (:) and headers.
         """
         plan_actions = []
-        for line in self.plan_text.splitlines():
-            line = line.strip()
-            # Skip empty lines, comments, and headers
-            if not line or line.startswith(';') or 'Found Plan' in line:
-                continue
-            # Skip PDDL keywords (action definitions, not plan steps)
-            # These start with (: like (:action, (:parameters, etc.
-            if line.startswith('(:') or line.startswith(':'):
-                continue
-            # Only match simple action calls: (action-name args...)
-            # Must start with ( and end with ), and not contain PDDL keywords
-            if line.startswith('(') and line.endswith(')') and '(:' not in line:
-                plan_actions.append(line)
+        
+        # Pre-cleaning: Remove likely PDDL definition blocks if they appear after the plan
+        # If we see "(:action", we assume everything after is definitions, not plan steps
+        clean_text = self.plan_text
+        if '(:action' in clean_text:
+            clean_text = clean_text.split('(:action')[0]
+            
+        # Use find_parens to robustly identify all top-level parenthesized groups
+        # This handles: (act a)(act b) on the same line
+        parens = find_parens(clean_text)
+        sorted_starts = sorted(parens.keys())
+        
+        for start in sorted_starts:
+            end = parens[start]
+            segment = clean_text[start:end+1].strip()
+            
+            # Filter valid actions:
+            # 1. Must start with ( and end with )
+            # 2. Must NOT start with (: (PDDL definition)
+            # 3. Must NOT be a comment or header junk
+            if segment.startswith('(') and segment.endswith(')') and not segment.startswith('(:') and not segment.startswith(';'):
+                # Heuristic: Valid plans usually don't have nested parens (unless complex types), 
+                # but simple actions are (name arg1 arg2).
+                # Verify it looks like an action call: (word ...)
+                if re.match(r'\(\s*[a-zA-Z][\w\-]*', segment):
+                    plan_actions.append(segment)
 
         if plan_actions and hasattr(self, 'problem_name'):
             # Add plan to the problem data
