@@ -1,86 +1,86 @@
-  // --- General Configs ---
-  const PY_MODULE_URL = "https://rawcdn.githack.com/ai4society/planning-ontology-tool/1c94d2fe18f7276510c75dcf38e98b45f97f3cda/ontology.py";
-  const PY_MODULE_NAME = "ontology";
-  const PY_FUNC_NAME   = "create_ontology";
+// --- General Configs ---
+const PY_MODULE_URL = "https://rawcdn.githack.com/ai4society/planning-ontology-tool/1c94d2fe18f7276510c75dcf38e98b45f97f3cda/ontology.py";
+const PY_MODULE_NAME = "ontology";
+const PY_FUNC_NAME = "create_ontology";
 
-  const RDF_TYPE_PREDICATE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-  const RDF_LABEL_PREDICATE = "http://www.w3.org/2000/01/rdf-schema#label"
-  
-  const RDF_IGNORE_PREDICATES = [
-    RDF_TYPE_PREDICATE,
-    RDF_LABEL_PREDICATE,
-    "http://www.w3.org/2000/01/rdf-schema#subClassOf",
-    "http://www.w3.org/2000/01/rdf-schema#domain",
-    "http://www.w3.org/2000/01/rdf-schema#range",
-    "http://www.w3.org/2000/01/rdf-schema#comment",
-    "http://www.w3.org/2002/07/owl#inverseOf",
-    "http://www.w3.org/2002/07/owl#versionIRI"
-  ];
+const RDF_TYPE_PREDICATE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+const RDF_LABEL_PREDICATE = "http://www.w3.org/2000/01/rdf-schema#label"
 
-  // UI Color Theme - Brick red primary with muted accents
-  const COLORS = {
-    primary: '#8B3A3A',
-    primaryHover: '#A04545',
-    primaryDark: '#6B2D2D',
-    background: '#FAFAFA',
-    surface: '#FFFFFF',
-    border: '#E0DDD9',
-    borderLight: '#EBE8E4',
-    textPrimary: '#3D3935',
-    textSecondary: '#6B6560',
-    textMuted: '#9A948D',
-    hover: '#F5F2EF',
-    accentBlue: '#5B7C99',
-    accentGreen: '#5B8A6F',
-    accentPurple: '#7B6B8D',
-    accentOrange: '#B87333',
-    accentGold: '#C4A35A',
-    accentTeal: '#5A8A8A'
-  };
+const RDF_IGNORE_PREDICATES = [
+  RDF_TYPE_PREDICATE,
+  RDF_LABEL_PREDICATE,
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+  "http://www.w3.org/2000/01/rdf-schema#domain",
+  "http://www.w3.org/2000/01/rdf-schema#range",
+  "http://www.w3.org/2000/01/rdf-schema#comment",
+  "http://www.w3.org/2002/07/owl#inverseOf",
+  "http://www.w3.org/2002/07/owl#versionIRI"
+];
 
-  const D3_STYLE = {
-    node: {
-      default: {
-        radius: 15,
-        fill: '#9E9E9E',
-        stroke: '#616161',
-        strokeWidth: 2
-      },
-      classes: {
-        domain: { fill: '#E57373' },      // Soft vibrant red
-        problem: { fill: '#81C784' },     // Soft vibrant green
-        plan: { fill: '#A3C9A8' },        // Muted mint for plan containers
-        plan_step: { fill: '#F9CE6B' },   // Warm yellow for plan steps
-        action: { fill: '#64B5F6' },      // Soft vibrant blue
-        precondition: { fill: '#4DD0E1' }, // Soft vibrant cyan
-        effect: { fill: '#BA68C8' },      // Soft vibrant purple
-        predicate: { fill: '#FFD54F' },   // Soft vibrant yellow
-        parameter: { fill: '#FFB74D' },   // Soft vibrant orange
-        planner: { fill: '#90CAF9' }      // Soft vibrant light blue
-      }
+// UI Color Theme - Brick red primary with muted accents
+const COLORS = {
+  primary: '#8B3A3A',
+  primaryHover: '#A04545',
+  primaryDark: '#6B2D2D',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  border: '#E0DDD9',
+  borderLight: '#EBE8E4',
+  textPrimary: '#3D3935',
+  textSecondary: '#6B6560',
+  textMuted: '#9A948D',
+  hover: '#F5F2EF',
+  accentBlue: '#5B7C99',
+  accentGreen: '#5B8A6F',
+  accentPurple: '#7B6B8D',
+  accentOrange: '#B87333',
+  accentGold: '#C4A35A',
+  accentTeal: '#5A8A8A'
+};
+
+const D3_STYLE = {
+  node: {
+    default: {
+      radius: 15,
+      fill: '#9E9E9E',
+      stroke: '#616161',
+      strokeWidth: 2
     },
-    edge: {
-      stroke: '#78909C',
-      strokeWidth: 1.5,
-      markerSize: 6
-    },
-    text: {
-      fontSize: '10px',
-      fontFamily: '"Inter", "Segoe UI", Arial, sans-serif',
-      fill: '#37474F'
+    classes: {
+      domain: { fill: '#E57373' },      // Soft vibrant red
+      problem: { fill: '#81C784' },     // Soft vibrant green
+      plan: { fill: '#A3C9A8' },        // Muted mint for plan containers
+      plan_step: { fill: '#F9CE6B' },   // Warm yellow for plan steps
+      action: { fill: '#64B5F6' },      // Soft vibrant blue
+      precondition: { fill: '#4DD0E1' }, // Soft vibrant cyan
+      effect: { fill: '#BA68C8' },      // Soft vibrant purple
+      predicate: { fill: '#FFD54F' },   // Soft vibrant yellow
+      parameter: { fill: '#FFB74D' },   // Soft vibrant orange
+      planner: { fill: '#90CAF9' }      // Soft vibrant light blue
     }
-  };
+  },
+  edge: {
+    stroke: '#78909C',
+    strokeWidth: 1.5,
+    markerSize: 6
+  },
+  text: {
+    fontSize: '10px',
+    fontFamily: '"Inter", "Segoe UI", Arial, sans-serif',
+    fill: '#37474F'
+  }
+};
 
-  const PLUGIN_LIBS = [
-    "https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js",
-    "https://cdn.jsdelivr.net/npm/rdflib@2.2.6/dist/rdflib.min.js",
-    "https://cdn.jsdelivr.net/npm/jsonld@1.8.1/dist/jsonld.min.js",
-    "https://cdn.jsdelivr.net/npm/n3@1.17.3/browser/n3.min.js",
-    "https://rdf.js.org/comunica-browser/versions/v4/engines/query-sparql/comunica-browser.js",
-    "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"
-  ];
+const PLUGIN_LIBS = [
+  "https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js",
+  "https://cdn.jsdelivr.net/npm/rdflib@2.2.6/dist/rdflib.min.js",
+  "https://cdn.jsdelivr.net/npm/jsonld@1.8.1/dist/jsonld.min.js",
+  "https://cdn.jsdelivr.net/npm/n3@1.17.3/browser/n3.min.js",
+  "https://rdf.js.org/comunica-browser/versions/v4/engines/query-sparql/comunica-browser.js",
+  "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"
+];
 
-  var PLUGIN_MODAL = `
+var PLUGIN_MODAL = `
   <div class="modal fade" id="chooseFiles" tabindex="-1" role="dialog"
       aria-labelledby="chooseModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -123,77 +123,77 @@
     </div>
   </div>`;
 
-  /**
-   * Run a Python snippet inside the Pyodide VM.
-   * Requires `window.pyodideReady` to be a Promise that resolves to a loaded Pyodide.
-   * @param {string} code - Python source to execute.
-   * @returns {Promise<any>} - Python snippet return.
- */
-  async function pyRun(code) {
-    await window.pyodideReady;
-    return await window.pyodide.runPythonAsync(code);
-  }
+/**
+ * Run a Python snippet inside the Pyodide VM.
+ * Requires `window.pyodideReady` to be a Promise that resolves to a loaded Pyodide.
+ * @param {string} code - Python source to execute.
+ * @returns {Promise<any>} - Python snippet return.
+*/
+async function pyRun(code) {
+  await window.pyodideReady;
+  return await window.pyodide.runPythonAsync(code);
+}
 
-  /**
-   * Load a Python module from a URL into Pyodide's virtual FS and import it.
-   * @param {string} url - Raw .py file URL.
-   * @param {string} moduleName - The module's import name (without .py).
-   * @returns {Promise<any>} - A proxied PyProxy for the imported module (via pyodide.pyimport).
- */
-  async function loadPyModuleFromURL(url, moduleName) {
-    await window.pyodideReady;
+/**
+ * Load a Python module from a URL into Pyodide's virtual FS and import it.
+ * @param {string} url - Raw .py file URL.
+ * @param {string} moduleName - The module's import name (without .py).
+ * @returns {Promise<any>} - A proxied PyProxy for the imported module (via pyodide.pyimport).
+*/
+async function loadPyModuleFromURL(url, moduleName) {
+  await window.pyodideReady;
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Error to fetch ${url}: ${res.status}`);
-    const src = await res.text();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Error to fetch ${url}: ${res.status}`);
+  const src = await res.text();
 
-    // Write the module file into Pyodide's in-memory filesystem.
-    window.pyodide.FS.writeFile(`${moduleName}.py`, src);
-    await pyRun(`
+  // Write the module file into Pyodide's in-memory filesystem.
+  window.pyodide.FS.writeFile(`${moduleName}.py`, src);
+  await pyRun(`
   import sys
   if "${moduleName}" not in sys.modules:
       import ${moduleName}
   ` );
-    // Return a Python module proxy we can call from JS.
-    return window.pyodide.pyimport(moduleName);
-  }
+  // Return a Python module proxy we can call from JS.
+  return window.pyodide.pyimport(moduleName);
+}
 
-  /**
-   * High-level helper: make sure the Python module/function is present and then call it.
-   * It expects the Python side expose a function that takes (domainText, problemText, planText)
-   * and returns an ontology string (RDF/XML).
-   * @param {string} domainText - PDDL domain text.
-   * @param {string} problemText - PDDL problem text.
-   * @param {string} planText - Optional plan text.
-   * @returns {Promise<any>} - Ontology string (RDF/XML).
- */
-  async function createOntologyWithPython(domainText, problemText, planText = "") {
-    await loadPyModuleFromURL(PY_MODULE_URL, PY_MODULE_NAME);
+/**
+ * High-level helper: make sure the Python module/function is present and then call it.
+ * It expects the Python side expose a function that takes (domainText, problemText, planText)
+ * and returns an ontology string (RDF/XML).
+ * @param {string} domainText - PDDL domain text.
+ * @param {string} problemText - PDDL problem text.
+ * @param {string} planText - Optional plan text.
+ * @returns {Promise<any>} - Ontology string (RDF/XML).
+*/
+async function createOntologyWithPython(domainText, problemText, planText = "") {
+  await loadPyModuleFromURL(PY_MODULE_URL, PY_MODULE_NAME);
 
-    let pythonFunction;
-    try {
-     pythonFunction = await pyRun(`
+  let pythonFunction;
+  try {
+    pythonFunction = await pyRun(`
   import importlib
   module = importlib.import_module("${PY_MODULE_NAME}")
   getattr(module, "${PY_FUNC_NAME}")
     `);
-    } catch (e) {
-      throw new Error(`Function "${PY_FUNC_NAME}" not found in module "${PY_MODULE_NAME}".`);
-    }
-
-    // Call the Python function directly from JS
-    return pythonFunction(domainText, problemText, planText);
+  } catch (e) {
+    throw new Error(`Function "${PY_FUNC_NAME}" not found in module "${PY_MODULE_NAME}".`);
   }
 
-  define(function(require, exports, module) {
+  // Call the Python function directly from JS
+  return pythonFunction(domainText, problemText, planText);
+}
 
-    /**
-     * Returns the full HTML layout string.
-     * @param {string} viewerId
-     * @returns {string} - HTML string
-   */
-    function getPluginLayout(viewerId) {
-      return `<style>
+define(function (require, exports, module) {
+
+  /**
+   * Returns the full HTML layout string.
+   * @param {string} viewerId
+   * @returns {string} - HTML string
+ */
+  function getPluginLayout(viewerId) {
+    return `<style>
         .kg-root{
           width:100%; height:100%;
           display:grid;
@@ -665,26 +665,26 @@
           </div>
         </aside>
       </div>`;
-    }
+  }
 
-    function formatQuery(query) {
-      return query
-        .split('\n')
-        .map(line => line.trim())
-        .join('\n')
-        .trim();
-    }
+  function formatQuery(query) {
+    return query
+      .split('\n')
+      .map(line => line.trim())
+      .join('\n')
+      .trim();
+  }
 
-    /**
-     * Append preset SPARQL query templates into the Templates panel.
-     * @param {string} viewerId
-   */
-    function attachQueryTemplates(viewerId) {
-      const templates = [
-        {
-          title: "List Actions of a Domain",
-          description: "Retrieves all actions associated with a specific planning domain.",
-          query: formatQuery(`
+  /**
+   * Append preset SPARQL query templates into the Templates panel.
+   * @param {string} viewerId
+ */
+  function attachQueryTemplates(viewerId) {
+    const templates = [
+      {
+        title: "List Actions of a Domain",
+        description: "Retrieves all actions associated with a specific planning domain.",
+        query: formatQuery(`
             PREFIX plan-ontology: <https://purl.org/ai4s/ontology/planning#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -694,12 +694,12 @@
                         rdfs:label "your-domain".
                 ?domain plan-ontology:hasMove ?action.
             }`),
-          defaultOpen: true
-        },
-        {
-          title: "Actions and Preconditions",
-          description: "Displays actions and their respective preconditions defined in the ontology.",
-          query: formatQuery(`
+        defaultOpen: true
+      },
+      {
+        title: "Actions and Preconditions",
+        description: "Displays actions and their respective preconditions defined in the ontology.",
+        query: formatQuery(`
             PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
             SELECT ?action ?precondition
             WHERE {
@@ -707,12 +707,12 @@
               ?action planning:hasPrecondition ?precondition .
             }
             LIMIT 20`),
-          defaultOpen: true
-        },
-        {
-          title: "Domain Requirements",
-          description: "Shows the requirements associated with a specific planning domain.",
-          query: formatQuery(`
+        defaultOpen: true
+      },
+      {
+        title: "Domain Requirements",
+        description: "Shows the requirements associated with a specific planning domain.",
+        query: formatQuery(`
             PREFIX plan-ontology: <https://purl.org/ai4s/ontology/planning#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -722,12 +722,12 @@
                         rdfs:label "your-domain".
                 ?domain plan-ontology:hasRequirement ?requirement.
             }`),
-          defaultOpen: false
-        },
-        {
-          title: "Action Effects",
-          description: "Lists all actions with their effects in the planning domain.",
-          query: formatQuery(`
+        defaultOpen: false
+      },
+      {
+        title: "Action Effects",
+        description: "Lists all actions with their effects in the planning domain.",
+        query: formatQuery(`
             PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
             SELECT ?action ?effect
             WHERE {
@@ -735,12 +735,12 @@
               ?action planning:hasEffect ?effect .
             }
             LIMIT 20`),
-          defaultOpen: false
-        },
-        {
-          title: "Action Parameters",
-          description: "Shows parameters for each action in the domain.",
-          query: formatQuery(`
+        defaultOpen: false
+      },
+      {
+        title: "Action Parameters",
+        description: "Shows parameters for each action in the domain.",
+        query: formatQuery(`
             PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
             SELECT ?action ?parameter
             WHERE {
@@ -748,12 +748,12 @@
               ?action planning:hasParameter ?parameter .
             }
             LIMIT 20`),
-          defaultOpen: false
-        },
-        {
-          title: "Plan Steps (if available)",
-          description: "Lists plan steps in execution order for problems that include a generated plan.",
-          query: formatQuery(`
+        defaultOpen: false
+      },
+      {
+        title: "Plan Steps (if available)",
+        description: "Lists plan steps in execution order for problems that include a generated plan.",
+        query: formatQuery(`
             PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -765,21 +765,21 @@
               ?step rdfs:label ?label .
             }
             ORDER BY ?problem ?number`),
-          defaultOpen: false
-        },
-      ];
+        defaultOpen: false
+      },
+    ];
 
-      const container = document.getElementById(`${viewerId}-templates-content`);
+    const container = document.getElementById(`${viewerId}-templates-content`);
 
-      // Add templates to HTML with collapsible structure
-      templates.forEach((t, index) => {
-        const templateId = `${viewerId}-template-${index}`;
-        const escapedQuery = t.query
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
+    // Add templates to HTML with collapsible structure
+    templates.forEach((t, index) => {
+      const templateId = `${viewerId}-template-${index}`;
+      const escapedQuery = t.query
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 
-        container.innerHTML += `
+      container.innerHTML += `
           <div class="kg-query-template ${t.defaultOpen ? 'is-open' : ''}" data-template-id="${templateId}">
             <button class="kg-template-header" aria-expanded="${t.defaultOpen}" aria-controls="${templateId}-body">
               <div class="kg-template-header-content">
@@ -800,240 +800,240 @@
             </div>
           </div>
         `;
+    });
+  }
+
+  /**
+   * Attach event handlers for template collapse/expand and run buttons.
+   * @param {string} viewerId
+ */
+  function attachTemplateHandlers(viewerId) {
+    const container = document.getElementById(`${viewerId}-templates-content`);
+
+    // Toggle collapse/expand on header click
+    container.querySelectorAll('.kg-template-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const template = header.closest('.kg-query-template');
+        const isOpen = template.classList.toggle('is-open');
+        header.setAttribute('aria-expanded', isOpen);
       });
-    }
+    });
 
-    /**
-     * Attach event handlers for template collapse/expand and run buttons.
-     * @param {string} viewerId
-   */
-    function attachTemplateHandlers(viewerId) {
-      const container = document.getElementById(`${viewerId}-templates-content`);
+    // Run button - load query into SPARQL textarea
+    container.querySelectorAll('.kg-template-run-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const query = decodeURIComponent(btn.dataset.query);
+        const textarea = document.getElementById(`${viewerId}-sparql-input`);
+        textarea.value = query;
+        textarea.focus();
 
-      // Toggle collapse/expand on header click
-      container.querySelectorAll('.kg-template-header').forEach(header => {
-        header.addEventListener('click', () => {
-          const template = header.closest('.kg-query-template');
-          const isOpen = template.classList.toggle('is-open');
-          header.setAttribute('aria-expanded', isOpen);
-        });
+        // Scroll SPARQL panel into view
+        const sparqlPanel = document.getElementById(`${viewerId}-sparql-panel`);
+        sparqlPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
+    });
+  }
 
-      // Run button - load query into SPARQL textarea
-      container.querySelectorAll('.kg-template-run-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const query = decodeURIComponent(btn.dataset.query);
-          const textarea = document.getElementById(`${viewerId}-sparql-input`);
-          textarea.value = query;
-          textarea.focus();
+  /**
+   * Attach event handlers for info popup (open, close, copy BibTeX).
+   * @param {string} viewerId
+   * @param {function} stopGlow - Optional function to stop the glow animation
+ */
+  function attachInfoPopupHandler(viewerId, stopGlow) {
+    const infoBtn = document.getElementById(`${viewerId}-info-btn`);
+    const infoLink = document.getElementById(`${viewerId}-info-link`);
+    const infoPopup = document.getElementById(`${viewerId}-info-popup`);
+    const closeBtn = document.getElementById(`${viewerId}-info-close`);
+    const copyBtn = document.getElementById(`${viewerId}-copy-bibtex`);
 
-          // Scroll SPARQL panel into view
-          const sparqlPanel = document.getElementById(`${viewerId}-sparql-panel`);
-          sparqlPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-    }
+    // Open popup from info button and stop glow animation
+    infoBtn.addEventListener('click', () => {
+      infoPopup.style.display = 'flex';
+      if (stopGlow) stopGlow();
+    });
 
-    /**
-     * Attach event handlers for info popup (open, close, copy BibTeX).
-     * @param {string} viewerId
-     * @param {function} stopGlow - Optional function to stop the glow animation
-   */
-    function attachInfoPopupHandler(viewerId, stopGlow) {
-      const infoBtn = document.getElementById(`${viewerId}-info-btn`);
-      const infoLink = document.getElementById(`${viewerId}-info-link`);
-      const infoPopup = document.getElementById(`${viewerId}-info-popup`);
-      const closeBtn = document.getElementById(`${viewerId}-info-close`);
-      const copyBtn = document.getElementById(`${viewerId}-copy-bibtex`);
-
-      // Open popup from info button and stop glow animation
-      infoBtn.addEventListener('click', () => {
+    // Open popup from description link
+    if (infoLink) {
+      infoLink.addEventListener('click', () => {
         infoPopup.style.display = 'flex';
-        if (stopGlow) stopGlow();
       });
+    }
 
-      // Open popup from description link
-      if (infoLink) {
-        infoLink.addEventListener('click', () => {
-          infoPopup.style.display = 'flex';
-        });
-      }
+    // Close popup via X button
+    closeBtn.addEventListener('click', () => {
+      infoPopup.style.display = 'none';
+    });
 
-      // Close popup via X button
-      closeBtn.addEventListener('click', () => {
+    // Close on backdrop click
+    infoPopup.addEventListener('click', (e) => {
+      if (e.target === infoPopup) {
         infoPopup.style.display = 'none';
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && infoPopup.style.display === 'flex') {
+        infoPopup.style.display = 'none';
+      }
+    });
+
+    // Copy BibTeX to clipboard
+    copyBtn.addEventListener('click', () => {
+      const bibtex = document.querySelector(`#${viewerId}-info-popup .kg-bibtex`).textContent;
+      navigator.clipboard.writeText(bibtex).then(() => {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = bibtex;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+        }, 2000);
       });
+    });
+  }
 
-      // Close on backdrop click
-      infoPopup.addEventListener('click', (e) => {
-        if (e.target === infoPopup) {
-          infoPopup.style.display = 'none';
-        }
-      });
+  /**
+   * Attach toggle handler for graph info box minimize/expand.
+   * @param {string} viewerId
+ */
+  function attachGraphInfoToggle(viewerId) {
+    const infoBox = document.getElementById(`${viewerId}-graph-info`);
+    const toggleBtn = document.getElementById(`${viewerId}-graph-info-toggle`);
 
-      // Close on Escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && infoPopup.style.display === 'flex') {
-          infoPopup.style.display = 'none';
-        }
-      });
+    // Make entire box clickable for toggle
+    infoBox.style.cursor = 'pointer';
+    infoBox.addEventListener('click', () => {
+      infoBox.classList.toggle('is-collapsed');
+      // Rotate the chevron icon
+      const svg = toggleBtn.querySelector('svg');
+      if (infoBox.classList.contains('is-collapsed')) {
+        svg.style.transform = 'rotate(180deg)';
+      } else {
+        svg.style.transform = 'rotate(0deg)';
+      }
+    });
+  }
 
-      // Copy BibTeX to clipboard
-      copyBtn.addEventListener('click', () => {
-        const bibtex = document.querySelector(`#${viewerId}-info-popup .kg-bibtex`).textContent;
-        navigator.clipboard.writeText(bibtex).then(() => {
-          const originalText = copyBtn.textContent;
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => {
-            copyBtn.textContent = originalText;
-          }, 2000);
-        }).catch(() => {
-          // Fallback for older browsers
-          const textarea = document.createElement('textarea');
-          textarea.value = bibtex;
-          document.body.appendChild(textarea);
-          textarea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textarea);
-          const originalText = copyBtn.textContent;
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => {
-            copyBtn.textContent = originalText;
-          }, 2000);
-        });
-      });
-    }
-
-    /**
-     * Attach toggle handler for graph info box minimize/expand.
-     * @param {string} viewerId
-   */
-    function attachGraphInfoToggle(viewerId) {
-      const infoBox = document.getElementById(`${viewerId}-graph-info`);
-      const toggleBtn = document.getElementById(`${viewerId}-graph-info-toggle`);
-
-      // Make entire box clickable for toggle
-      infoBox.style.cursor = 'pointer';
-      infoBox.addEventListener('click', () => {
-        infoBox.classList.toggle('is-collapsed');
-        // Rotate the chevron icon
-        const svg = toggleBtn.querySelector('svg');
-        if (infoBox.classList.contains('is-collapsed')) {
-          svg.style.transform = 'rotate(180deg)';
-        } else {
-          svg.style.transform = 'rotate(0deg)';
-        }
-      });
-    }
-
-    /**
-     * Update the graph info box with statistics from the graph data.
-     * @param {string} viewerId
-     * @param {any} store - rdflib store
-     * @param {object} graphData - { nodes, links }
-   */
-    function updateGraphInfo(viewerId, store, graphData) {
-      // Extract domain name from store
-      let domainName = '-';
-      store.statements.forEach(st => {
-        if (st.predicate.value === RDF_TYPE_PREDICATE &&
-            st.object.value.toLowerCase().includes('domain')) {
-          // Found a domain node, get its label
-          const domainUri = st.subject.value;
-          store.statements.forEach(labelSt => {
-            if (labelSt.subject.value === domainUri &&
-                labelSt.predicate.value === RDF_LABEL_PREDICATE &&
-                labelSt.object.termType === 'Literal') {
-              domainName = labelSt.object.value;
-            }
-          });
-        }
-      });
-
-      // Count node types
-      const actionCount = graphData.nodes.filter(n => n.class === 'action').length;
-      const predicateCount = graphData.nodes.filter(n => n.class === 'predicate').length;
-
-      // Update DOM elements
-      const domainEl = document.getElementById(`${viewerId}-info-domain`);
-      const actionsEl = document.getElementById(`${viewerId}-info-actions`);
-      const predicatesEl = document.getElementById(`${viewerId}-info-predicates`);
-      const nodesEl = document.getElementById(`${viewerId}-info-nodes`);
-      const edgesEl = document.getElementById(`${viewerId}-info-edges`);
-
-      if (domainEl) domainEl.textContent = domainName;
-      if (actionsEl) actionsEl.textContent = actionCount;
-      if (predicatesEl) predicatesEl.textContent = predicateCount;
-      if (nodesEl) nodesEl.textContent = graphData.nodes.length;
-      if (edgesEl) edgesEl.textContent = graphData.links.length;
-    }
-
-    /**
-     * Create node popup handler for showing node details on click.
-     * @param {string} viewerId
-     * @param {object} graphData - { nodes, links }
-     * @param {any} store - rdflib store for additional metadata
-     * @returns {function} - Click handler function for nodes
-   */
-    function createNodePopupHandler(viewerId, graphData, store) {
-      const popup = document.getElementById(`${viewerId}-node-popup`);
-      let autoCloseTimer = null;
-      let countdownInterval = null;
-
-      // Get badge color based on node class
-      const getBadgeColor = (nodeClass) => {
-        const classStyle = D3_STYLE.node.classes[nodeClass];
-        return classStyle ? classStyle.fill : D3_STYLE.node.default.fill;
-      };
-
-      // Find connections for a node
-      const getConnections = (nodeId) => {
-        const incoming = graphData.links.filter(l => l.target.id === nodeId || l.target === nodeId);
-        const outgoing = graphData.links.filter(l => l.source.id === nodeId || l.source === nodeId);
-        return { incoming, outgoing };
-      };
-
-      // Get domain and range info from store
-      const getNodeMetadata = (nodeId) => {
-        let domain = null;
-        let range = null;
-        let comment = null;
-
-        store.statements.forEach(st => {
-          if (st.subject.value === nodeId) {
-            if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#domain') {
-              domain = shortLabel(st.object.value);
-            }
-            if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#range') {
-              range = shortLabel(st.object.value);
-            }
-            if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#comment' && st.object.termType === 'Literal') {
-              comment = st.object.value;
-            }
+  /**
+   * Update the graph info box with statistics from the graph data.
+   * @param {string} viewerId
+   * @param {any} store - rdflib store
+   * @param {object} graphData - { nodes, links }
+ */
+  function updateGraphInfo(viewerId, store, graphData) {
+    // Extract domain name from store
+    let domainName = '-';
+    store.statements.forEach(st => {
+      if (st.predicate.value === RDF_TYPE_PREDICATE &&
+        st.object.value.toLowerCase().includes('domain')) {
+        // Found a domain node, get its label
+        const domainUri = st.subject.value;
+        store.statements.forEach(labelSt => {
+          if (labelSt.subject.value === domainUri &&
+            labelSt.predicate.value === RDF_LABEL_PREDICATE &&
+            labelSt.object.termType === 'Literal') {
+            domainName = labelSt.object.value;
           }
         });
+      }
+    });
 
-        return { domain, range, comment };
-      };
+    // Count node types
+    const actionCount = graphData.nodes.filter(n => n.class === 'action').length;
+    const predicateCount = graphData.nodes.filter(n => n.class === 'predicate').length;
 
-      const hidePopup = () => {
-        popup.style.display = 'none';
-        if (autoCloseTimer) clearTimeout(autoCloseTimer);
-        if (countdownInterval) clearInterval(countdownInterval);
-      };
+    // Update DOM elements
+    const domainEl = document.getElementById(`${viewerId}-info-domain`);
+    const actionsEl = document.getElementById(`${viewerId}-info-actions`);
+    const predicatesEl = document.getElementById(`${viewerId}-info-predicates`);
+    const nodesEl = document.getElementById(`${viewerId}-info-nodes`);
+    const edgesEl = document.getElementById(`${viewerId}-info-edges`);
 
-      const showPopup = (d, event) => {
-        // Clear existing timers
-        if (autoCloseTimer) clearTimeout(autoCloseTimer);
-        if (countdownInterval) clearInterval(countdownInterval);
+    if (domainEl) domainEl.textContent = domainName;
+    if (actionsEl) actionsEl.textContent = actionCount;
+    if (predicatesEl) predicatesEl.textContent = predicateCount;
+    if (nodesEl) nodesEl.textContent = graphData.nodes.length;
+    if (edgesEl) edgesEl.textContent = graphData.links.length;
+  }
 
-        const { incoming, outgoing } = getConnections(d.id);
-        const metadata = getNodeMetadata(d.id);
-        const badgeColor = getBadgeColor(d.class);
+  /**
+   * Create node popup handler for showing node details on click.
+   * @param {string} viewerId
+   * @param {object} graphData - { nodes, links }
+   * @param {any} store - rdflib store for additional metadata
+   * @returns {function} - Click handler function for nodes
+ */
+  function createNodePopupHandler(viewerId, graphData, store) {
+    const popup = document.getElementById(`${viewerId}-node-popup`);
+    let autoCloseTimer = null;
+    let countdownInterval = null;
 
-        // Build popup content
-        let html = `
+    // Get badge color based on node class
+    const getBadgeColor = (nodeClass) => {
+      const classStyle = D3_STYLE.node.classes[nodeClass];
+      return classStyle ? classStyle.fill : D3_STYLE.node.default.fill;
+    };
+
+    // Find connections for a node
+    const getConnections = (nodeId) => {
+      const incoming = graphData.links.filter(l => l.target.id === nodeId || l.target === nodeId);
+      const outgoing = graphData.links.filter(l => l.source.id === nodeId || l.source === nodeId);
+      return { incoming, outgoing };
+    };
+
+    // Get domain and range info from store
+    const getNodeMetadata = (nodeId) => {
+      let domain = null;
+      let range = null;
+      let comment = null;
+
+      store.statements.forEach(st => {
+        if (st.subject.value === nodeId) {
+          if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#domain') {
+            domain = shortLabel(st.object.value);
+          }
+          if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#range') {
+            range = shortLabel(st.object.value);
+          }
+          if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#comment' && st.object.termType === 'Literal') {
+            comment = st.object.value;
+          }
+        }
+      });
+
+      return { domain, range, comment };
+    };
+
+    const hidePopup = () => {
+      popup.style.display = 'none';
+      if (autoCloseTimer) clearTimeout(autoCloseTimer);
+      if (countdownInterval) clearInterval(countdownInterval);
+    };
+
+    const showPopup = (d, event) => {
+      // Clear existing timers
+      if (autoCloseTimer) clearTimeout(autoCloseTimer);
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      const { incoming, outgoing } = getConnections(d.id);
+      const metadata = getNodeMetadata(d.id);
+      const badgeColor = getBadgeColor(d.class);
+
+      // Build popup content
+      let html = `
           <div class="kg-node-popup-header">
             <span class="kg-node-popup-title" title="${d.label}">${d.label}</span>
             <button class="kg-node-popup-close" aria-label="Close">&times;</button>
@@ -1052,355 +1052,379 @@
               <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
             </div>`;
 
-        if (metadata.domain) {
-          html += `
+      if (metadata.domain) {
+        html += `
             <div class="kg-node-popup-row">
               <span class="kg-node-popup-label">Domain</span>
               <span class="kg-node-popup-value">${metadata.domain}</span>
             </div>`;
-        }
+      }
 
-        if (metadata.range) {
-          html += `
+      if (metadata.range) {
+        html += `
             <div class="kg-node-popup-row">
               <span class="kg-node-popup-label">Range</span>
               <span class="kg-node-popup-value">${metadata.range}</span>
             </div>`;
-        }
+      }
 
-        if (metadata.comment) {
-          html += `
+      if (metadata.comment) {
+        html += `
             <div class="kg-node-popup-row">
               <span class="kg-node-popup-label">Comment</span>
               <span class="kg-node-popup-value">${metadata.comment}</span>
             </div>`;
-        }
+      }
 
-        html += `
+      html += `
           </div>
           <div class="kg-node-popup-timer">
             Closing in <span id="${viewerId}-popup-countdown">30</span>s
           </div>`;
 
-        popup.innerHTML = html;
+      popup.innerHTML = html;
 
-        // Position popup near the click, but within canvas bounds
-        const canvas = popup.parentElement;
-        const canvasRect = canvas.getBoundingClientRect();
-        let x = event.clientX - canvasRect.left + 15;
-        let y = event.clientY - canvasRect.top + 15;
+      // Position popup near the click, but within canvas bounds
+      const canvas = popup.parentElement;
+      const canvasRect = canvas.getBoundingClientRect();
+      let x = event.clientX - canvasRect.left + 15;
+      let y = event.clientY - canvasRect.top + 15;
 
-        // Keep popup within canvas bounds
-        popup.style.display = 'block';
-        const popupRect = popup.getBoundingClientRect();
-        if (x + popupRect.width > canvasRect.width - 20) {
-          x = canvasRect.width - popupRect.width - 20;
-        }
-        if (y + popupRect.height > canvasRect.height - 20) {
-          y = canvasRect.height - popupRect.height - 20;
-        }
-
-        popup.style.left = x + 'px';
-        popup.style.top = y + 'px';
-
-        // Attach close button handler
-        popup.querySelector('.kg-node-popup-close').addEventListener('click', hidePopup);
-
-        // Auto-close countdown
-        let countdown = 30;
-        const countdownEl = document.getElementById(`${viewerId}-popup-countdown`);
-
-        countdownInterval = setInterval(() => {
-          countdown--;
-          if (countdownEl) countdownEl.textContent = countdown;
-        }, 1000);
-
-        autoCloseTimer = setTimeout(hidePopup, 30000);
-      };
-
-      return { showPopup, hidePopup };
-    }
-
-    /**
-     * Start info button glow animation every 30 seconds.
-     * Returns a stop function to cancel the glow animation.
-     * @param {string} viewerId
-     * @returns {function} - Call this to stop the glow animation
-   */
-    function startInfoButtonGlow(viewerId) {
-      const infoBtn = document.getElementById(`${viewerId}-info-btn`);
-      if (!infoBtn) return () => {};
-
-      let initialTimeout = null;
-      let glowInterval = null;
-
-      const triggerGlow = () => {
-        infoBtn.classList.add('glow');
-        // Remove class after animation completes (1s)
-        setTimeout(() => {
-          infoBtn.classList.remove('glow');
-        }, 1000);
-      };
-
-      // Initial glow after 3 seconds
-      initialTimeout = setTimeout(() => {
-        triggerGlow();
-        // Then every 30 seconds
-        glowInterval = setInterval(triggerGlow, 30000);
-      }, 3000);
-
-      // Return stop function
-      return () => {
-        if (initialTimeout) clearTimeout(initialTimeout);
-        if (glowInterval) clearInterval(glowInterval);
-        infoBtn.classList.remove('glow');
-      };
-    }
-
-    /**
-     * Escape an editor id for CSS selectors (handles spaces/parens in "Plan (1)" tabs).
-     * @param {string} id
-     * @returns {string}
-   */
-    function escapeSelector(id) {
-      if (window.CSS && CSS.escape) return CSS.escape(id);
-      // Escape characters that are unsafe in CSS selectors
-      return id.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, '\\$1');
-    }
-
-    /**
-     * Resolve the visible tab label for an editor id, falling back to the id itself.
-     * @param {string} editorId
-     * @returns {string}
-   */
-    function getTabLabel(editorId) {
-      const labelEl = document.querySelector(`#tab-${escapeSelector(editorId)}`);
-      if (!labelEl) return editorId;
-      const txt = (labelEl.textContent || "").replace(/\s*×$/, "").trim();
-      return txt || editorId;
-    }
-
-    /**
-     * Collect open editor ids/labels. Uses window.pddl_files when available
-     * and falls back to scanning tab anchors (captures planner-created "Plan (n)" tabs).
-     * @returns {Array<{id:string,label:string}>}
-   */
-    function collectOpenEditors() {
-      const editors = [];
-      const seen = new Set();
-      const closed = Array.isArray(window.closed_editors) ? window.closed_editors : [];
-
-      if (Array.isArray(window.pddl_files)) {
-        window.pddl_files.forEach(id => {
-          if (closed.includes(id) || seen.has(id)) return;
-          editors.push({ id, label: getTabLabel(id) });
-          seen.add(id);
-        });
+      // Keep popup within canvas bounds
+      popup.style.display = 'block';
+      const popupRect = popup.getBoundingClientRect();
+      if (x + popupRect.width > canvasRect.width - 20) {
+        x = canvasRect.width - popupRect.width - 20;
+      }
+      if (y + popupRect.height > canvasRect.height - 20) {
+        y = canvasRect.height - popupRect.height - 20;
       }
 
-      // Planner-created plan tabs might not be in window.pddl_files; scan DOM anchors.
-      document.querySelectorAll('a[data-toggle="tab"]').forEach(el => {
-        const href = el.getAttribute('href') || '';
-        if (!href.startsWith('#')) return;
-        const id = href.slice(1);
-        if (!id || closed.includes(id) || seen.has(id)) return;
-        const label = ((el.textContent || "").replace(/\s*×$/, "").trim()) || id;
-        editors.push({ id, label });
+      popup.style.left = x + 'px';
+      popup.style.top = y + 'px';
+
+      // Attach close button handler
+      popup.querySelector('.kg-node-popup-close').addEventListener('click', hidePopup);
+
+      // Auto-close countdown
+      let countdown = 30;
+      const countdownEl = document.getElementById(`${viewerId}-popup-countdown`);
+
+      countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdownEl) countdownEl.textContent = countdown;
+      }, 1000);
+
+      autoCloseTimer = setTimeout(hidePopup, 30000);
+    };
+
+    return { showPopup, hidePopup };
+  }
+
+  /**
+   * Start info button glow animation every 30 seconds.
+   * Returns a stop function to cancel the glow animation.
+   * @param {string} viewerId
+   * @returns {function} - Call this to stop the glow animation
+ */
+  function startInfoButtonGlow(viewerId) {
+    const infoBtn = document.getElementById(`${viewerId}-info-btn`);
+    if (!infoBtn) return () => { };
+
+    let initialTimeout = null;
+    let glowInterval = null;
+
+    const triggerGlow = () => {
+      infoBtn.classList.add('glow');
+      // Remove class after animation completes (1s)
+      setTimeout(() => {
+        infoBtn.classList.remove('glow');
+      }, 1000);
+    };
+
+    // Initial glow after 3 seconds
+    initialTimeout = setTimeout(() => {
+      triggerGlow();
+      // Then every 30 seconds
+      glowInterval = setInterval(triggerGlow, 30000);
+    }, 3000);
+
+    // Return stop function
+    return () => {
+      if (initialTimeout) clearTimeout(initialTimeout);
+      if (glowInterval) clearInterval(glowInterval);
+      infoBtn.classList.remove('glow');
+    };
+  }
+
+  /**
+   * Escape an editor id for CSS selectors (handles spaces/parens in "Plan (1)" tabs).
+   * @param {string} id
+   * @returns {string}
+ */
+  function escapeSelector(id) {
+    if (window.CSS && CSS.escape) return CSS.escape(id);
+    // Escape characters that are unsafe in CSS selectors
+    return id.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, '\\$1');
+  }
+
+  /**
+   * Resolve the visible tab label for an editor id, falling back to the id itself.
+   * @param {string} editorId
+   * @returns {string}
+ */
+  function getTabLabel(editorId) {
+    const labelEl = document.querySelector(`#tab-${escapeSelector(editorId)}`);
+    if (!labelEl) return editorId;
+    const txt = (labelEl.textContent || "").replace(/\s*×$/, "").trim();
+    return txt || editorId;
+  }
+
+  /**
+   * Collect open editor ids/labels. Uses window.pddl_files when available
+   * and falls back to scanning tab anchors (captures planner-created "Plan (n)" tabs).
+   * @returns {Array<{id:string,label:string}>}
+ */
+  function collectOpenEditors() {
+    const editors = [];
+    const seen = new Set();
+    const closed = Array.isArray(window.closed_editors) ? window.closed_editors : [];
+
+    if (Array.isArray(window.pddl_files)) {
+      window.pddl_files.forEach(id => {
+        if (closed.includes(id) || seen.has(id)) return;
+        editors.push({ id, label: getTabLabel(id) });
         seen.add(id);
       });
-
-      return editors;
     }
 
-    /**
-     * Populate domain/problem/plan dropdowns by scanning open PDDL editors.
-     * Uses regex to detect "(domain", "(problem", or plan files (actions starting with "(").
+    // Planner-created plan tabs might not be in window.pddl_files; scan DOM anchors.
+    document.querySelectorAll('a[data-toggle="tab"]').forEach(el => {
+      const href = el.getAttribute('href') || '';
+      if (!href.startsWith('#')) return;
+      const id = href.slice(1);
+      if (!id || closed.includes(id) || seen.has(id)) return;
+      const label = ((el.textContent || "").replace(/\s*×$/, "").trim()) || id;
+      editors.push({ id, label });
+      seen.add(id);
+    });
+
+    return editors;
+  }
+
+  /**
+   * Helper to get text content from a tab, whether it's an Ace editor or a plain DOM element.
+   * @param {string} id - DOM ID of the tab content
+   * @returns {string} - The text content
    */
-    function fileChooser() {
-      var domainOpts = "", problemOpts = "", planOpts = "";
-
-      const editors = collectOpenEditors();
-
-      editors.forEach(function(editorInfo) {
-        const fileName = editorInfo.id;
-        const label = editorInfo.label || fileName;
-
-        // Skip Knowledge Graph tabs the plugin creates itself
-        if (/^Knowledge Graph/i.test(label)) return;
-
-        // Get the text from the file (if ace editor exists)
-        let editorText = "";
-        try {
-          const editorInstance = ace.edit(fileName);
-          if (editorInstance && editorInstance.getSession) {
-            editorText = editorInstance.getSession().getValue();
-          }
-        } catch (e) {
-          console.warn("Skipping non-ACE tab", fileName, e);
-          return;
-        }
-
-        var opt = `<option value="${fileName}">${label}</option>\n`;
-
-        // Check if the file is a domain, problem, or plan
-        // Plan detection: check tab name (Planning-as-a-Service uses "Plan (1)", etc.) OR content
-        if (/\(domain/i.test(editorText))
-          domainOpts += opt;
-        else if (/\(problem/i.test(editorText))
-          problemOpts += opt;
-        else if (/^Plan\s*\(/i.test(label) || isPlanFile(editorText))
-          planOpts += opt;
-      });
-
-      $('#domainSelect').html(domainOpts);
-      $('#problemSelect').html(problemOpts);
-      $('#planSelect').html('<option value="">-- No plan --</option>\n' + planOpts);
-      $('#chooseFiles').modal('toggle');
+  function getFileContent(id) {
+    if (!id) return "";
+    let text = "";
+    try {
+      const editor = ace.edit(id);
+      if (editor && editor.getSession) {
+        text = editor.getSession().getValue();
+      }
+    } catch (e) {
+      // Not an Ace editor, fall through
     }
 
-    /**
-     * Check if a file content looks like a plan file.
-     * Detects Planning-as-a-Service output or other plan formats.
-     * @param {string} txt - File content
-     * @returns {boolean} - True if it looks like a plan file
-   */
-    function isPlanFile(txt) {
-      // Check for Planning-as-a-Service header
-      if (/Found Plan/i.test(txt)) return true;
+    if (!text) {
+      const el = document.getElementById(id);
+      if (el) {
+        text = el.innerText || el.textContent;
+      }
+    }
+    return text || "";
+  }
 
-      // Filter non-empty, non-comment lines
-      var lines = txt.split('\n').filter(line => {
-        var trimmed = line.trim();
-        return trimmed && !trimmed.startsWith(';');
-      });
+  /**
+   * Populate domain/problem/plan dropdowns by scanning open PDDL editors.
+   * Uses regex to detect "(domain", "(problem", or plan files (actions starting with "(").
+ */
+  function fileChooser() {
+    var domainOpts = "", problemOpts = "", planOpts = "";
 
-      if (lines.length === 0) return false;
+    const editors = collectOpenEditors();
 
-      // Count simple action calls (not PDDL definitions)
-      // Plan actions: (action-name param1 param2) - no colons after (
-      // PDDL actions: (:action name ...) - has colon after (
-      var actionLineCount = 0;
-      for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        // Match simple action calls: start with ( but NOT followed by :
-        if (/^\([a-zA-Z][\w\-]*(\s|$|\))/.test(line) && !line.startsWith('(:')) {
-          actionLineCount++;
-        }
+    editors.forEach(function (editorInfo) {
+      const fileName = editorInfo.id;
+      const label = editorInfo.label || fileName;
+
+      // Skip Knowledge Graph tabs the plugin creates itself
+      if (/^Knowledge Graph/i.test(label)) return;
+
+      // Get the text from the file (if ace editor exists)
+      // Get the text from the file (try Ace first, then DOM)
+      const editorText = getFileContent(fileName);
+
+      if (!editorText) {
+        console.warn("Skipping empty or inaccessible tab", fileName);
+        return;
       }
 
-      // If at least 30% of non-empty lines look like simple action calls, it's likely a plan
-      return actionLineCount > 0 && (actionLineCount / lines.length) >= 0.3;
-    }
+      var opt = `<option value="${fileName}">${label}</option>\n`;
 
-    /**
-     * Handler after user selects domain/problem/plan files.
-     * Reads buffers from ACE, calls the Python converter, opens a KG tab with the result.
-   */
-    async function onFilesChosen() {
-      $('#chooseFiles').modal('hide');
+      // Check if the file is a domain, problem, or plan
+      // Plan detection: check tab name (Planning-as-a-Service uses "Plan (1)", etc.) OR content
+      if (/\(domain/i.test(editorText))
+        domainOpts += opt;
+      else if (/\(problem/i.test(editorText))
+        problemOpts += opt;
+      else if (/^Plan\s*\(/i.test(label) || isPlanFile(editorText))
+        planOpts += opt;
+    });
 
-      // Get the text from the selected files
-      var domainText  = ace.edit($('#domainSelect').val()).getSession().getValue();
-      var problemText = ace.edit($('#problemSelect').val()).getSession().getValue();
+    $('#domainSelect').html(domainOpts);
+    $('#problemSelect').html(problemOpts);
+    $('#planSelect').html('<option value="">-- No plan --</option>\n' + planOpts);
+    $('#chooseFiles').modal('toggle');
+  }
 
-      // Get plan text if a plan file is selected (optional)
-      var planText = "";
-      var planSelectVal = $('#planSelect').val();
-      if (planSelectVal) {
-        planText = ace.edit(planSelectVal).getSession().getValue();
+  /**
+   * Check if a file content looks like a plan file.
+   * Detects Planning-as-a-Service output or other plan formats.
+   * @param {string} txt - File content
+   * @returns {boolean} - True if it looks like a plan file
+ */
+  function isPlanFile(txt) {
+    // Check for Planning-as-a-Service header
+    if (/Found Plan/i.test(txt)) return true;
+
+    // Filter non-empty, non-comment lines
+    var lines = txt.split('\n').filter(line => {
+      var trimmed = line.trim();
+      return trimmed && !trimmed.startsWith(';');
+    });
+
+    if (lines.length === 0) return false;
+
+    // Count simple action calls (not PDDL definitions)
+    // Plan actions: (action-name param1 param2) - no colons after (
+    // PDDL actions: (:action name ...) - has colon after (
+    var actionLineCount = 0;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      // Match simple action calls: start with ( but NOT followed by :
+      if (/^\([a-zA-Z][\w\-]*(\s|$|\))/.test(line) && !line.startsWith('(:')) {
+        actionLineCount++;
       }
-
-      const ontologyJson = await createOntologyWithPython(domainText, problemText, planText);
-      createKnowledgeGraphTab(ontologyJson);
     }
 
-    /**
-     * Load a script URL ensuring it attaches globals (temporarily disabling AMD).
-     * This is useful for libraries that expect `window.<lib>` instead of AMD modules.
-     * @param {string} url
-     * @returns {Promise<void>}
-   */
-    function loadScriptGlobal(url) {
-      return new Promise(function(resolve, reject) {
-        // disable AMD temporarily to avoid dependencies issues
-        // Forcing the disable they go to global scope
-        var windowDefine = window.define;
-        var amd = windowDefine && windowDefine.amd;
-        if (windowDefine) windowDefine.amd = false;
+    // If at least 30% of non-empty lines look like simple action calls, it's likely a plan
+    return actionLineCount > 0 && (actionLineCount / lines.length) >= 0.3;
+  }
 
-        var scriptElement = document.createElement("script");
-        scriptElement.src   = url;
-        scriptElement.async = true;
+  /**
+   * Handler after user selects domain/problem/plan files.
+   * Reads buffers from ACE, calls the Python converter, opens a KG tab with the result.
+ */
+  async function onFilesChosen() {
+    $('#chooseFiles').modal('hide');
 
-        scriptElement.onload  = function() {
-          console.log("✓ Script loaded:", url);
-          if (windowDefine) windowDefine.amd = amd; // Restore AMD
-          resolve();
-        };  
+    // Get the text from the selected files
+    // Get the text from the selected files
+    var domainText = getFileContent($('#domainSelect').val());
+    var problemText = getFileContent($('#problemSelect').val());
 
-        scriptElement.onerror = function(e) {
-          console.error("✗ Error to load the script", url, e);
-          if (windowDefine) windowDefine.amd = amd; // Restore AMD even on error
-          
-          reject(new Error("Error to load the script: " + url));
-        };
-
-        document.head.appendChild(scriptElement);
-      });
+    // Get plan text if a plan file is selected (optional)
+    var planText = "";
+    var planSelectVal = $('#planSelect').val();
+    if (planSelectVal) {
+      planText = getFileContent(planSelectVal);
     }
 
-    /**
-     * Initialize the Pyodide runtime once and memoize it on window.pyodideReady.
-     * @returns {Promise<any>} - The pyodide instance.
-   */
-    async function loadPyodideRuntime() {
-      // Creates a shared Promise that other functions can await to ensure Pyodide is loaded
-      window.pyodideReady = new Promise((resolve, reject) => {
-        loadPyodide({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
-        })
+    const ontologyJson = await createOntologyWithPython(domainText, problemText, planText);
+    createKnowledgeGraphTab(ontologyJson);
+  }
+
+  /**
+   * Load a script URL ensuring it attaches globals (temporarily disabling AMD).
+   * This is useful for libraries that expect `window.<lib>` instead of AMD modules.
+   * @param {string} url
+   * @returns {Promise<void>}
+ */
+  function loadScriptGlobal(url) {
+    return new Promise(function (resolve, reject) {
+      // disable AMD temporarily to avoid dependencies issues
+      // Forcing the disable they go to global scope
+      var windowDefine = window.define;
+      var amd = windowDefine && windowDefine.amd;
+      if (windowDefine) windowDefine.amd = false;
+
+      var scriptElement = document.createElement("script");
+      scriptElement.src = url;
+      scriptElement.async = true;
+
+      scriptElement.onload = function () {
+        console.log("✓ Script loaded:", url);
+        if (windowDefine) windowDefine.amd = amd; // Restore AMD
+        resolve();
+      };
+
+      scriptElement.onerror = function (e) {
+        console.error("✗ Error to load the script", url, e);
+        if (windowDefine) windowDefine.amd = amd; // Restore AMD even on error
+
+        reject(new Error("Error to load the script: " + url));
+      };
+
+      document.head.appendChild(scriptElement);
+    });
+  }
+
+  /**
+   * Initialize the Pyodide runtime once and memoize it on window.pyodideReady.
+   * @returns {Promise<any>} - The pyodide instance.
+ */
+  async function loadPyodideRuntime() {
+    // Creates a shared Promise that other functions can await to ensure Pyodide is loaded
+    window.pyodideReady = new Promise((resolve, reject) => {
+      loadPyodide({
+        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
+      })
         .then((pyodide) => {
           console.log("Pyodide loaded");
           window.pyodide = pyodide;
           resolve(pyodide);
         })
         .catch(reject);
-      });
- 
-      return window.pyodideReady;
-    }
+    });
 
-    /**
-     * Load all third-party libs.
-     * Uses simple index checks to assert globals are present.
-     * Memoized as `window.kgLibsLoading` to prevent duplicate work.
-   */
-    async function loadKgLibs() {
-      window.toastr.info("Loading dependencies...");
-      if (window.kgLibsLoading) return window.kgLibsLoading;
+    return window.pyodideReady;
+  }
 
-      window.kgLibsLoading = (async () => {
-        try {
-          for (let i = 0; i < PLUGIN_LIBS.length; i++) {
-            await loadScriptGlobal(PLUGIN_LIBS[i]);
-            
-            // After loading the “browser libs” batch, assert their globals
-            if (i === 4) {
-              if (!window.d3) throw new Error("window.d3 not exposed");
-              if (!window.$rdf) throw new Error("window.$rdf not exposed");
-              if (!window.N3) throw new Error("window.N3 not exposed");
-              if (!window.Comunica) throw new Error("window.Comunica not exposed");
-            }
-            
-            // After Pyodide loader, bring the runtime up and pip-install Python dependencies
-            if (i === 5) {
-              if (!window.loadPyodide) throw new Error("window.loadPyodide not exposed");
-              await loadPyodideRuntime();
-              console.log("✓ Pyodide runtime loaded");
+  /**
+   * Load all third-party libs.
+   * Uses simple index checks to assert globals are present.
+   * Memoized as `window.kgLibsLoading` to prevent duplicate work.
+ */
+  async function loadKgLibs() {
+    window.toastr.info("Loading dependencies...");
+    if (window.kgLibsLoading) return window.kgLibsLoading;
 
-              // Install Python packages in the Pyodide environment
-              await window.pyodide.loadPackage('micropip');
-              await window.pyodide.runPythonAsync(`
+    window.kgLibsLoading = (async () => {
+      try {
+        for (let i = 0; i < PLUGIN_LIBS.length; i++) {
+          await loadScriptGlobal(PLUGIN_LIBS[i]);
+
+          // After loading the “browser libs” batch, assert their globals
+          if (i === 4) {
+            if (!window.d3) throw new Error("window.d3 not exposed");
+            if (!window.$rdf) throw new Error("window.$rdf not exposed");
+            if (!window.N3) throw new Error("window.N3 not exposed");
+            if (!window.Comunica) throw new Error("window.Comunica not exposed");
+          }
+
+          // After Pyodide loader, bring the runtime up and pip-install Python dependencies
+          if (i === 5) {
+            if (!window.loadPyodide) throw new Error("window.loadPyodide not exposed");
+            await loadPyodideRuntime();
+            console.log("✓ Pyodide runtime loaded");
+
+            // Install Python packages in the Pyodide environment
+            await window.pyodide.loadPackage('micropip');
+            await window.pyodide.runPythonAsync(`
   import micropip
   await micropip.install(['pyodide-http', 'rdflib'])
   
@@ -1416,150 +1440,150 @@
   # Dont repeat this setup unnecessarily in future calls
   builtins._net_patched = True
             `);
-            }
           }
-          window.toastr.info("Dependencies loaded");
-        } catch (err) {
-          console.error("Error loading libs:", err);
-          window.toastr.error("Error loading libs");
-          window.kgLibsLoading = null;
-          throw err;
         }
-      })();
-
-      return window.kgLibsLoading;
-    }
-
-    /**
-     * Create a new KG tab, parse/store ontology, render graph,
-     * wire SPARQL panel, and attach download link.
-     * @param {string} ontologyString - RDF/XML string.
-   */
-    async function createKnowledgeGraphTab(ontologyString) {
-      try {
-        // EditorDomains helper creates a new editor and sets window.current_editor 
-        createEditor();
-        var editorId = window.current_editor;
-
-        // Rename the tab
-        $('#tab-' + editorId).text(`Knowledge Graph(${knowledgeGraphTabsCount})`);
-
-        // Get the container for the editor (which is shown/hidden)
-        var $container = $('#' + editorId);
-
-        $container.empty();
-
-        // Build the plugin layout into this container.
-        const viewerId = editorId + '-kg-viewer';
-        $container.html(getPluginLayout(viewerId));
-
-        attachQueryTemplates(viewerId);
-        attachTemplateHandlers(viewerId);
-
-        // Start info button glow animation and get stop function
-        const stopGlow = startInfoButtonGlow(viewerId);
-        attachInfoPopupHandler(viewerId, stopGlow);
-
-        attachGraphInfoToggle(viewerId);
-        knowledgeGraphTabsCount += 1;
-
-        const container = document.getElementById(viewerId);
-        if (!container)
-          throw new Error(`Container not found: ${viewerId}`);
-
-        const store = parseStore(ontologyString);
-        const graphData = buildGraphData(store);
-
-        // Create node popup handler and pass to D3 graph
-        const nodePopupHandler = createNodePopupHandler(viewerId, graphData, store);
-        renderD3Graph(container, graphData, nodePopupHandler);
-
-        attachSparqlQueryHandler(store, container.id);
-        updateGraphInfo(viewerId, store, graphData);
-
-        console.log("✓ Knowledge Graph rendered");
+        window.toastr.info("Dependencies loaded");
       } catch (err) {
-        console.error("❌ Erro in createKnowledgeGraphTab:", err.message);
-        alert(`❌ Erro rendering the graph:\n${err.message}`);
+        console.error("Error loading libs:", err);
+        window.toastr.error("Error loading libs");
+        window.kgLibsLoading = null;
+        throw err;
       }
+    })();
+
+    return window.kgLibsLoading;
+  }
+
+  /**
+   * Create a new KG tab, parse/store ontology, render graph,
+   * wire SPARQL panel, and attach download link.
+   * @param {string} ontologyString - RDF/XML string.
+ */
+  async function createKnowledgeGraphTab(ontologyString) {
+    try {
+      // EditorDomains helper creates a new editor and sets window.current_editor 
+      createEditor();
+      var editorId = window.current_editor;
+
+      // Rename the tab
+      $('#tab-' + editorId).text(`Knowledge Graph(${knowledgeGraphTabsCount})`);
+
+      // Get the container for the editor (which is shown/hidden)
+      var $container = $('#' + editorId);
+
+      $container.empty();
+
+      // Build the plugin layout into this container.
+      const viewerId = editorId + '-kg-viewer';
+      $container.html(getPluginLayout(viewerId));
+
+      attachQueryTemplates(viewerId);
+      attachTemplateHandlers(viewerId);
+
+      // Start info button glow animation and get stop function
+      const stopGlow = startInfoButtonGlow(viewerId);
+      attachInfoPopupHandler(viewerId, stopGlow);
+
+      attachGraphInfoToggle(viewerId);
+      knowledgeGraphTabsCount += 1;
+
+      const container = document.getElementById(viewerId);
+      if (!container)
+        throw new Error(`Container not found: ${viewerId}`);
+
+      const store = parseStore(ontologyString);
+      const graphData = buildGraphData(store);
+
+      // Create node popup handler and pass to D3 graph
+      const nodePopupHandler = createNodePopupHandler(viewerId, graphData, store);
+      renderD3Graph(container, graphData, nodePopupHandler);
+
+      attachSparqlQueryHandler(store, container.id);
+      updateGraphInfo(viewerId, store, graphData);
+
+      console.log("✓ Knowledge Graph rendered");
+    } catch (err) {
+      console.error("❌ Erro in createKnowledgeGraphTab:", err.message);
+      alert(`❌ Erro rendering the graph:\n${err.message}`);
     }
+  }
 
-    /**
-     * Connect SPARQL panel buttons to the Comunica query engine.
-     * @param {any} store - rdflib.js store.
-     * @param {string} containerId - Viewer root id.
-   */
-    function attachSparqlQueryHandler(store, containerId) {
-      const inputEl = document.getElementById(`${containerId}-sparql-input`);
-      const outputEl = document.getElementById(`${containerId}-sparql-output`);
-      const runQueryButton = document.getElementById(`${containerId}-sparql-run`);
-      const clearResultsButton = document.getElementById(`${containerId}-sparql-clear`);
+  /**
+   * Connect SPARQL panel buttons to the Comunica query engine.
+   * @param {any} store - rdflib.js store.
+   * @param {string} containerId - Viewer root id.
+ */
+  function attachSparqlQueryHandler(store, containerId) {
+    const inputEl = document.getElementById(`${containerId}-sparql-input`);
+    const outputEl = document.getElementById(`${containerId}-sparql-output`);
+    const runQueryButton = document.getElementById(`${containerId}-sparql-run`);
+    const clearResultsButton = document.getElementById(`${containerId}-sparql-clear`);
 
-      runQueryButton.addEventListener('click', () => executeSparqlQuery(store, inputEl, outputEl));
-      clearResultsButton.addEventListener('click', () => { outputEl.textContent = ""; });
-    }
+    runQueryButton.addEventListener('click', () => executeSparqlQuery(store, inputEl, outputEl));
+    clearResultsButton.addEventListener('click', () => { outputEl.textContent = ""; });
+  }
 
-    /**
-     * Execute a SPARQL query using Comunica over an N3 store built from rdflib statements.
-     * @param {any} rdflibStore
-     * @param {string} queryString
-     * @param {AbortSignal} abortSignal - Supports timeouts/cancellation.
-     * @returns {Promise<object[]>} - Rows as JSON bindings from Comunica.
-   */
-    async function runComunicaQueryEngine(rdflibStore, queryString, abortSignal) {
-      // Convert rdflib statements to N3 quads
-      const n3store = new window.N3.Store();
-      
-      rdflibStore.statements.forEach(st => {
-        n3store.addQuad(st.subject, st.predicate, st.object);
-      })
-      
-      const engine = new window.Comunica.QueryEngine();
-      const result = await engine.query(queryString, { sources: [ n3store ], signal: abortSignal });
+  /**
+   * Execute a SPARQL query using Comunica over an N3 store built from rdflib statements.
+   * @param {any} rdflibStore
+   * @param {string} queryString
+   * @param {AbortSignal} abortSignal - Supports timeouts/cancellation.
+   * @returns {Promise<object[]>} - Rows as JSON bindings from Comunica.
+ */
+  async function runComunicaQueryEngine(rdflibStore, queryString, abortSignal) {
+    // Convert rdflib statements to N3 quads
+    const n3store = new window.N3.Store();
 
-      const resultStream = await engine.resultToString(result);
-      return await streamToJson(resultStream.data);
-    }
+    rdflibStore.statements.forEach(st => {
+      n3store.addQuad(st.subject, st.predicate, st.object);
+    })
 
-    /**
-     * Collect a Node stream into a string and parse as JSON.
-     * @param {ReadableStream} stream
-     * @returns {Promise<any>}
-   */
-    async function streamToJson(stream) {
-      return new Promise((resolve, reject) => { 
-        let result = '';  
-        stream.on('data', (chunk) => {
-          result += new TextDecoder().decode(chunk);
-        });
-        
-        stream.on('end', () => resolve(JSON.parse(result)));
-        stream.on('error', reject);
+    const engine = new window.Comunica.QueryEngine();
+    const result = await engine.query(queryString, { sources: [n3store], signal: abortSignal });
+
+    const resultStream = await engine.resultToString(result);
+    return await streamToJson(resultStream.data);
+  }
+
+  /**
+   * Collect a Node stream into a string and parse as JSON.
+   * @param {ReadableStream} stream
+   * @returns {Promise<any>}
+ */
+  async function streamToJson(stream) {
+    return new Promise((resolve, reject) => {
+      let result = '';
+      stream.on('data', (chunk) => {
+        result += new TextDecoder().decode(chunk);
       });
+
+      stream.on('end', () => resolve(JSON.parse(result)));
+      stream.on('error', reject);
+    });
+  }
+
+  /**
+   * Validate, run, and display a SPARQL query.
+   * @param {any} store - rdflib store.
+   * @param {HTMLTextAreaElement} inputEl
+   * @param {HTMLElement} outputEl - <pre> where results will be shown.
+ */
+  function executeSparqlQuery(store, inputEl, outputEl) {
+    const queryString = inputEl.value.trim();
+    outputEl.textContent = "";
+
+    if (!queryString) {
+      outputEl.textContent = "Please enter a SPARQL query.";
+      return;
     }
-    
-    /**
-     * Validate, run, and display a SPARQL query.
-     * @param {any} store - rdflib store.
-     * @param {HTMLTextAreaElement} inputEl
-     * @param {HTMLElement} outputEl - <pre> where results will be shown.
-   */
-    function executeSparqlQuery(store, inputEl, outputEl) {
-      const queryString = inputEl.value.trim();
-      outputEl.textContent = "";
 
-      if (!queryString) {
-        outputEl.textContent = "Please enter a SPARQL query.";
-        return;
-      }
+    // Abort if the query exceeds 20s
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), 20000); // 20s
 
-      // Abort if the query exceeds 20s
-      const abortController = new AbortController();
-      const timeout  = setTimeout(() => abortController.abort(), 20000); // 20s
+    outputEl.textContent = "Running query…";
 
-      outputEl.textContent = "Running query…";
-
-      runComunicaQueryEngine(store, queryString, abortController.signal)
+    runComunicaQueryEngine(store, queryString, abortController.signal)
       .then(rows => {
         clearTimeout(timeout);
         if (!rows || rows.length === 0) {
@@ -1591,308 +1615,308 @@
         clearTimeout(timeout);
         outputEl.textContent = "Error executing the query: " + (err && err.message ? err.message : String(err));
       });
-    }
+  }
 
-    /**
-     * Parse an RDF/XML string into an rdflib.js store, this functions helps to avoid error rendering the knowledge graph.
-     * @param {string} ontologyString - RDF/XML content.
-     * @returns {any} rdflib store
-   */
-    function parseStore(ontologyString) {
-      const store = window.$rdf.graph();
-      window.$rdf.parse(ontologyString, store, "https://purl.org/ai4s/ontology/planning#", "application/rdf+xml");
-      return store;
-    }
+  /**
+   * Parse an RDF/XML string into an rdflib.js store, this functions helps to avoid error rendering the knowledge graph.
+   * @param {string} ontologyString - RDF/XML content.
+   * @returns {any} rdflib store
+ */
+  function parseStore(ontologyString) {
+    const store = window.$rdf.graph();
+    window.$rdf.parse(ontologyString, store, "https://purl.org/ai4s/ontology/planning#", "application/rdf+xml");
+    return store;
+  }
 
-    /**
-     * Convert triples into a simple {nodes, links} graph model for D3 rendering.
-     * - Collect rdfs:label values for pretty node labels.
-     * - Track rdf:type to infer classes (domain, problem, action, etc.).
-     * - Ignore literals and a small set of noisy predicates.
-     * @param {any} store - rdflib store.
-     * @returns {{nodes: Array, links: Array}}
-   */
-    function buildGraphData(store) {
-      const classMap = new Map(); // subject URI -> rdf:type short label
-      const labelsMap = new Map(); // subject URI -> rdfs:label
-      let domainInstance = null;
+  /**
+   * Convert triples into a simple {nodes, links} graph model for D3 rendering.
+   * - Collect rdfs:label values for pretty node labels.
+   * - Track rdf:type to infer classes (domain, problem, action, etc.).
+   * - Ignore literals and a small set of noisy predicates.
+   * @param {any} store - rdflib store.
+   * @returns {{nodes: Array, links: Array}}
+ */
+  function buildGraphData(store) {
+    const classMap = new Map(); // subject URI -> rdf:type short label
+    const labelsMap = new Map(); // subject URI -> rdfs:label
+    let domainInstance = null;
 
-      // Gather labels and types
-      store.statements.forEach(st => {
-        if (st.predicate.value === RDF_LABEL_PREDICATE && st.object.termType === "Literal") {
-          labelsMap.set(st.subject.value, st.object.value);
-          return;
-        }
-        if (st.predicate.value === RDF_TYPE_PREDICATE && st.object.termType === "NamedNode") {
-          const subj = st.subject.value;
-          const typeLabel = shortLabel(st.object.value).toLowerCase();
-          classMap.set(subj, typeLabel);
-          if (typeLabel === "domain") domainInstance = subj;
-        }
-      });
-
-      const nodes = [];
-      const links = [];
-      const nodeMap = new Map();
-
-      function ensureNode(uri) {
-        if (nodeMap.has(uri)) return nodeMap.get(uri);
-        const node = {
-          id: uri,
-          label: labelsMap.get(uri) || shortLabel(uri),
-          class: detectClass(uri, classMap, domainInstance)
-        };
-        nodes.push(node);
-        nodeMap.set(uri, node);
-        return node;
+    // Gather labels and types
+    store.statements.forEach(st => {
+      if (st.predicate.value === RDF_LABEL_PREDICATE && st.object.termType === "Literal") {
+        labelsMap.set(st.subject.value, st.object.value);
+        return;
       }
-
-      // Create edges for URI → URI statements (skip literals & ignored preds).
-      store.statements.forEach(st => {
-        if (RDF_IGNORE_PREDICATES.includes(st.predicate.value)) return;
-        if (st.object.termType === "Literal") return;
-        if (st.subject.termType !== "NamedNode" || st.predicate.termType !== "NamedNode" || st.object.termType !== "NamedNode") return;
-
+      if (st.predicate.value === RDF_TYPE_PREDICATE && st.object.termType === "NamedNode") {
         const subj = st.subject.value;
-        const pred = st.predicate.value;
-        const obj  = st.object.value;
+        const typeLabel = shortLabel(st.object.value).toLowerCase();
+        classMap.set(subj, typeLabel);
+        if (typeLabel === "domain") domainInstance = subj;
+      }
+    });
 
-        ensureNode(subj);
-        ensureNode(obj);
+    const nodes = [];
+    const links = [];
+    const nodeMap = new Map();
 
-        links.push({
-          id: `${subj}-${pred}-${obj}`,
-          source: subj,
-          target: obj,
-          label: shortLabel(pred)
-        });
+    function ensureNode(uri) {
+      if (nodeMap.has(uri)) return nodeMap.get(uri);
+      const node = {
+        id: uri,
+        label: labelsMap.get(uri) || shortLabel(uri),
+        class: detectClass(uri, classMap, domainInstance)
+      };
+      nodes.push(node);
+      nodeMap.set(uri, node);
+      return node;
+    }
+
+    // Create edges for URI → URI statements (skip literals & ignored preds).
+    store.statements.forEach(st => {
+      if (RDF_IGNORE_PREDICATES.includes(st.predicate.value)) return;
+      if (st.object.termType === "Literal") return;
+      if (st.subject.termType !== "NamedNode" || st.predicate.termType !== "NamedNode" || st.object.termType !== "NamedNode") return;
+
+      const subj = st.subject.value;
+      const pred = st.predicate.value;
+      const obj = st.object.value;
+
+      ensureNode(subj);
+      ensureNode(obj);
+
+      links.push({
+        id: `${subj}-${pred}-${obj}`,
+        source: subj,
+        target: obj,
+        label: shortLabel(pred)
+      });
+    });
+
+    return { nodes, links };
+  }
+
+  /**
+   * Return a compact label for a URI (everything after last # or /).
+   * @param {string} uri
+   * @returns {string}
+ */
+  function shortLabel(uri) {
+    return uri ? uri.split(/[#\/]/).pop() : "";
+  }
+
+  /**
+   * Decide a node's visual class from rdf:type, with a special case for the domain instance.
+   * @param {string} uri
+   * @param {Map<string,string>} classMap - subject URI -> type label (lowercased).
+   * @param {string} domainInstance
+   * @returns {"domain"|"problem"|"action"|"parameter"|"effect"|"precondition"|"planner"|"other"}
+ */
+  function detectClass(uri, classMap, domainInstance) {
+    if (!uri)
+      return "other";
+
+    if (uri === domainInstance)
+      return "domain";
+
+    const type = classMap.get(uri);
+    const knownTypes = ["problem", "action", "parameter", "effect", "precondition", "planner", "plan", "plan_step"];
+    return (type && knownTypes.includes(type)) ? type : "other";
+  }
+
+  function renderD3Graph(container, graphData, nodePopupHandler) {
+    const svg = window.d3.select(`#${container.id}-svg`);
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    // Clear previous content
+    svg.selectAll("*").remove();
+
+    // Create arrow marker for edges
+    svg.append("defs").append("marker")
+      .attr("id", "arrowhead")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 35)
+      .attr("refY", 0)
+      .attr("orient", "auto")
+      .attr("markerWidth", D3_STYLE.edge.markerSize)
+      .attr("markerHeight", D3_STYLE.edge.markerSize)
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .attr("fill", D3_STYLE.edge.stroke);
+
+    // Create zoom behavior
+    const zoom = window.d3.zoom()
+      .scaleExtent([0.2, 4])
+      .on("zoom", function (event) {
+        g.attr("transform", event.transform);
       });
 
-      return { nodes, links };
-    }
+    svg.call(zoom);
 
-    /**
-     * Return a compact label for a URI (everything after last # or /).
-     * @param {string} uri
-     * @returns {string}
-   */
-    function shortLabel(uri) {
-      return uri ? uri.split(/[#\/]/).pop() : "";
-    }
+    // Close popup when clicking on canvas background
+    svg.on("click", function () {
+      if (nodePopupHandler) {
+        nodePopupHandler.hidePopup();
+      }
+    });
 
-    /**
-     * Decide a node's visual class from rdf:type, with a special case for the domain instance.
-     * @param {string} uri
-     * @param {Map<string,string>} classMap - subject URI -> type label (lowercased).
-     * @param {string} domainInstance
-     * @returns {"domain"|"problem"|"action"|"parameter"|"effect"|"precondition"|"planner"|"other"}
-   */
-    function detectClass(uri, classMap, domainInstance) {
-      if (!uri)
-        return "other";
+    // Main group for zooming/panning
+    const g = svg.append("g");
 
-      if (uri === domainInstance)
-        return "domain";
+    // Create force simulation
+    const simulation = window.d3.forceSimulation(graphData.nodes)
+      .force("charge", window.d3.forceManyBody().strength(-300))
+      .force("link", window.d3.forceLink(graphData.links).id(d => d.id)
+        .distance(200)).force("center", window.d3.forceCenter(width / 2, height / 2))
+      .force("collision", window.d3.forceCollide().radius(30));
 
-      const type = classMap.get(uri);
-      const knownTypes = ["problem", "action", "parameter", "effect", "precondition", "planner", "plan", "plan_step"];
-      return (type && knownTypes.includes(type)) ? type : "other";
-    }
+    // Create links
+    const link = g.append("g")
+      .selectAll("line")
+      .data(graphData.links)
+      .enter().append("line")
+      .attr("stroke", D3_STYLE.edge.stroke)
+      .attr("stroke-width", D3_STYLE.edge.strokeWidth)
+      .attr("marker-end", "url(#arrowhead)");
 
-    function renderD3Graph(container, graphData, nodePopupHandler) {
-      const svg = window.d3.select(`#${container.id}-svg`);
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+    // Create link labels
+    const linkLabel = g.append("g")
+      .selectAll("text")
+      .data(graphData.links)
+      .enter().append("text")
+      .attr("font-size", "8px")
+      .attr("font-family", D3_STYLE.text.fontFamily)
+      .attr("fill", D3_STYLE.text.fill)
+      .attr("text-anchor", "middle")
+      .attr("dy", -5)
+      .style("pointer-events", "none")
+      .text(d => d.label);
 
-      // Clear previous content
-      svg.selectAll("*").remove();
-
-      // Create arrow marker for edges
-      svg.append("defs").append("marker")
-        .attr("id", "arrowhead")
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 35)
-        .attr("refY", 0)
-        .attr("orient", "auto")
-        .attr("markerWidth", D3_STYLE.edge.markerSize)
-        .attr("markerHeight", D3_STYLE.edge.markerSize)
-        .append("path")
-        .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", D3_STYLE.edge.stroke);
-
-      // Create zoom behavior
-      const zoom = window.d3.zoom()
-        .scaleExtent([0.2, 4])
-        .on("zoom", function(event) {
-          g.attr("transform", event.transform);
-        });
-
-      svg.call(zoom);
-
-      // Close popup when clicking on canvas background
-      svg.on("click", function() {
+    // Create node groups
+    const node = g.append("g")
+      .selectAll("g")
+      .data(graphData.nodes)
+      .enter().append("g")
+      .style("cursor", "pointer")
+      .call(window.d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended))
+      .on("click", function (event, d) {
+        event.stopPropagation();
         if (nodePopupHandler) {
-          nodePopupHandler.hidePopup();
+          nodePopupHandler.showPopup(d, event);
         }
       });
 
-      // Main group for zooming/panning
-      const g = svg.append("g");
-
-      // Create force simulation
-      const simulation = window.d3.forceSimulation(graphData.nodes)
-        .force("charge", window.d3.forceManyBody().strength(-300))
-        .force("link", window.d3.forceLink(graphData.links).id(d => d.id)
-        .distance(200)).force("center", window.d3.forceCenter(width / 2, height / 2))
-        .force("collision", window.d3.forceCollide().radius(30));
-      
-      // Create links
-      const link = g.append("g")
-        .selectAll("line")
-        .data(graphData.links)
-        .enter().append("line")
-        .attr("stroke", D3_STYLE.edge.stroke)
-        .attr("stroke-width", D3_STYLE.edge.strokeWidth)
-        .attr("marker-end", "url(#arrowhead)");
-
-      // Create link labels
-      const linkLabel = g.append("g")
-        .selectAll("text")
-        .data(graphData.links)
-        .enter().append("text")
-        .attr("font-size", "8px")
-        .attr("font-family", D3_STYLE.text.fontFamily)
-        .attr("fill", D3_STYLE.text.fill)
-        .attr("text-anchor", "middle")
-        .attr("dy", -5)
-        .style("pointer-events", "none")
-        .text(d => d.label);
-
-      // Create node groups
-      const node = g.append("g")
-        .selectAll("g")
-        .data(graphData.nodes)
-        .enter().append("g")
-        .style("cursor", "pointer")
-        .call(window.d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended))
-        .on("click", function(event, d) {
-          event.stopPropagation();
-          if (nodePopupHandler) {
-            nodePopupHandler.showPopup(d, event);
-          }
-        });
-
-      // Add circles to nodes with hover effect
-      node.append("circle")
-        .attr("r", D3_STYLE.node.default.radius)
-        .attr("fill", d => {
-          const classStyle = D3_STYLE.node.classes[d.class];
-          return classStyle ? classStyle.fill : D3_STYLE.node.default.fill;
-        })
-        .attr("stroke", D3_STYLE.node.default.stroke)
-        .attr("stroke-width", D3_STYLE.node.default.strokeWidth)
-        .on("mouseenter", function() {
-          window.d3.select(this)
-            .transition().duration(150)
-            .attr("r", D3_STYLE.node.default.radius * 1.2)
-            .attr("stroke-width", 3);
-        })
-        .on("mouseleave", function() {
-          window.d3.select(this)
-            .transition().duration(150)
-            .attr("r", D3_STYLE.node.default.radius)
-            .attr("stroke-width", D3_STYLE.node.default.strokeWidth);
-        });
-
-      // Add labels to nodes
-      node.append("text")
-        .attr("dx", 0)
-        .attr("dy", 35)
-        .attr("font-size", D3_STYLE.text.fontSize)
-        .attr("font-family", D3_STYLE.text.fontFamily)
-        .attr("fill", D3_STYLE.text.fill)
-        .attr("text-anchor", "middle")
-        .style("pointer-events", "none")
-        .text(d => d.label);
-
-      // Add tooltips
-      node.append("title")
-        .text(d => `${d.label} (${d.class})`);
-
-      // Update positions on simulation tick
-      simulation.on("tick", () => {
-        link
-          .attr("x1", d => d.source.x)
-          .attr("y1", d => d.source.y)
-          .attr("x2", d => d.target.x)
-          .attr("y2", d => d.target.y);
-
-        linkLabel
-          .attr("x", d => (d.source.x + d.target.x) / 2)
-          .attr("y", d => (d.source.y + d.target.y) / 2);
-
-        node
-          .attr("transform", d => `translate(${d.x},${d.y})`);
+    // Add circles to nodes with hover effect
+    node.append("circle")
+      .attr("r", D3_STYLE.node.default.radius)
+      .attr("fill", d => {
+        const classStyle = D3_STYLE.node.classes[d.class];
+        return classStyle ? classStyle.fill : D3_STYLE.node.default.fill;
+      })
+      .attr("stroke", D3_STYLE.node.default.stroke)
+      .attr("stroke-width", D3_STYLE.node.default.strokeWidth)
+      .on("mouseenter", function () {
+        window.d3.select(this)
+          .transition().duration(150)
+          .attr("r", D3_STYLE.node.default.radius * 1.2)
+          .attr("stroke-width", 3);
+      })
+      .on("mouseleave", function () {
+        window.d3.select(this)
+          .transition().duration(150)
+          .attr("r", D3_STYLE.node.default.radius)
+          .attr("stroke-width", D3_STYLE.node.default.strokeWidth);
       });
 
-      // Drag functions
-      function dragstarted(event, d) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      }
+    // Add labels to nodes
+    node.append("text")
+      .attr("dx", 0)
+      .attr("dy", 35)
+      .attr("font-size", D3_STYLE.text.fontSize)
+      .attr("font-family", D3_STYLE.text.fontFamily)
+      .attr("fill", D3_STYLE.text.fill)
+      .attr("text-anchor", "middle")
+      .style("pointer-events", "none")
+      .text(d => d.label);
 
-      function dragged(event, d) {
-        d.fx = event.x;
-        d.fy = event.y;
-      }
+    // Add tooltips
+    node.append("title")
+      .text(d => `${d.label} (${d.class})`);
 
-      function dragended(event, d) {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-      }
+    // Update positions on simulation tick
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      linkLabel
+        .attr("x", d => (d.source.x + d.target.x) / 2)
+        .attr("y", d => (d.source.y + d.target.y) / 2);
+
+      node
+        .attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    // Drag functions
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
     }
 
-    window.fileChooser = fileChooser;
-    window.onFilesChosen = onFilesChosen;
-    window.createKnowledgeGraphTab = createKnowledgeGraphTab;
-    let knowledgeGraphTabsCount = 1;
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
 
-    return {
-      name:        "Planning Ontology (PO)",
-      author:      "Bharath Muppasani, Bernardo Denkvitts, Biplav Srivastava",
-      email:       "bharath@email.sc.edu",
-      description: "Generate knowledge graphs using Planning Ontology (PO) and run SPARQL queries",
-      
-      initialize: function () {
-        $('body').append(PLUGIN_MODAL);
-        $('#filesChosenBtn').on('click', onFilesChosen);
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+  }
 
-        window.register_file_chooser('Plugin', {
-          showChoice:  fileChooser,
-          selectChoice: onFilesChosen
-        });
+  window.fileChooser = fileChooser;
+  window.onFilesChosen = onFilesChosen;
+  window.createKnowledgeGraphTab = createKnowledgeGraphTab;
+  let knowledgeGraphTabsCount = 1;
 
-        loadKgLibs().catch(err => console.error('Preload failed (will retry later):', err));
-        
-        window.add_menu_button(
-          'Knowledge Graph', 'PluginBtn', 'glyphicon-leaf',
-          "window.fileChooser()"
-        );
+  return {
+    name: "Planning Ontology (PO)",
+    author: "Bharath Muppasani, Bernardo Denkvitts, Biplav Srivastava",
+    email: "bharath@email.sc.edu",
+    description: "Generate knowledge graphs using Planning Ontology (PO) and run SPARQL queries",
 
-      },
+    initialize: function () {
+      $('body').append(PLUGIN_MODAL);
+      $('#filesChosenBtn').on('click', onFilesChosen);
 
-      disable: function() {
-        window.remove_menu_button('PluginBtn');
-        window.remove_menu_button('KGBtn');
-      },
-      save: function () { return {}; },
-      
-      load: function(settings)  {}
-    };
-    
-  });
+      window.register_file_chooser('Plugin', {
+        showChoice: fileChooser,
+        selectChoice: onFilesChosen
+      });
+
+      loadKgLibs().catch(err => console.error('Preload failed (will retry later):', err));
+
+      window.add_menu_button(
+        'Knowledge Graph', 'PluginBtn', 'glyphicon-leaf',
+        "window.fileChooser()"
+      );
+
+    },
+
+    disable: function () {
+      window.remove_menu_button('PluginBtn');
+      window.remove_menu_button('KGBtn');
+    },
+    save: function () { return {}; },
+
+    load: function (settings) { }
+  };
+
+});
