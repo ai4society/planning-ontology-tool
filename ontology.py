@@ -74,7 +74,6 @@ class PDDLParser:
         # We cannot use self.find_parens() directly if it stops at the first group.
         # We implement a simple stack-based parser here for the plan content.
         pstack = []
-        start_indices = {}
         
         for i, c in enumerate(clean_text):
             if c == '(':
@@ -90,11 +89,12 @@ class PDDLParser:
                         if segment.startswith('(') and segment.endswith(')') and not segment.startswith('(:') and not segment.startswith(';'):
                             # Filter out non-action groups like "(output)" or "(plan)"
                             # Valid actions usually look like (name arg1 arg2)
-                            if re.match(r'\(\s*[a-zA-Z][\w\-]+(\s+[a-zA-Z0-9\?\-\._]+)*\s*\)', segment):
-                                # Skip "(output)" if it's just a single word that might be a header
-                                # But some actions might be 0-arity (move). 
-                                # We'll allow 0-arity if it doesn't look like specific noise.
-                                if segment.lower() not in ['(output)', '(plan)', '(found plan)']:
+                            # We allow alphanumeric, hyphens, underscores, question marks (vars), etc.
+                            if re.match(r'\(\s*[a-zA-Z][\w\-\?\.]*(\s+[a-zA-Z0-9\?\-\._]+)*\s*\)', segment):
+                                # Skip specific noise words
+                                # Some solvers output (output), (plan), (found plan), (problem-name)
+                                lower_seg = segment.lower().replace(" ", "")
+                                if not any(x in lower_seg for x in ['(output)', '(plan)', '(foundplan)', '(:domain']):
                                     plan_actions.append(segment)
 
         if plan_actions and hasattr(self, 'problem_name'):
