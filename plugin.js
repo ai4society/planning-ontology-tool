@@ -42,30 +42,30 @@
     node: {
       default: {
         radius: 15,
-        fill: '#B8B2AB',
-        stroke: '#5D5750',
+        fill: '#9E9E9E',
+        stroke: '#616161',
         strokeWidth: 2
       },
       classes: {
-        domain: { fill: '#8B3A3A' },
-        problem: { fill: '#5B8A6F' },
-        action: { fill: '#5B7C99' },
-        precondition: { fill: '#5A8A8A' },
-        effect: { fill: '#7B6B8D' },
-        predicate: { fill: '#C4A35A' },
-        parameter: { fill: '#B87333' },
-        planner: { fill: '#7A9EB5' }
+        domain: { fill: '#E57373' },      // Soft vibrant red
+        problem: { fill: '#81C784' },     // Soft vibrant green
+        action: { fill: '#64B5F6' },      // Soft vibrant blue
+        precondition: { fill: '#4DD0E1' }, // Soft vibrant cyan
+        effect: { fill: '#BA68C8' },      // Soft vibrant purple
+        predicate: { fill: '#FFD54F' },   // Soft vibrant yellow
+        parameter: { fill: '#FFB74D' },   // Soft vibrant orange
+        planner: { fill: '#90CAF9' }      // Soft vibrant light blue
       }
     },
     edge: {
-      stroke: '#6B6560',
+      stroke: '#78909C',
       strokeWidth: 1.5,
       markerSize: 6
     },
     text: {
       fontSize: '10px',
       fontFamily: '"Inter", "Segoe UI", Arial, sans-serif',
-      fill: '#3D3935'
+      fill: '#37474F'
     }
   };
 
@@ -211,6 +211,16 @@
           font-family:Georgia, serif; font-style:italic;
         }
         .kg-info-btn:hover{ background:${COLORS.primary}; color:${COLORS.surface}; }
+        .kg-info-btn.glow{
+          animation: infoGlow 1s ease-in-out;
+        }
+        @keyframes infoGlow{
+          0%{ box-shadow:0 0 0 0 rgba(139,58,58,0.4); transform:scale(1); }
+          25%{ box-shadow:0 0 12px 4px rgba(139,58,58,0.6); transform:scale(1.15); }
+          50%{ box-shadow:0 0 8px 2px rgba(139,58,58,0.4); transform:scale(1.1); }
+          75%{ box-shadow:0 0 12px 4px rgba(139,58,58,0.6); transform:scale(1.15); }
+          100%{ box-shadow:0 0 0 0 rgba(139,58,58,0); transform:scale(1); }
+        }
 
         /* Info Popup */
         .kg-info-popup{
@@ -282,10 +292,6 @@
         }
         .kg-btn:hover{ background:${COLORS.hover}; border-color:${COLORS.textMuted}; }
 
-        /* Dynamic toggle text */
-        #${viewerId}-tpl-toggle:not(:checked) ~ .kg-controls .kg-toggle-btn::after{ content:"Show Templates"; }
-        #${viewerId}-tpl-toggle:checked ~ .kg-controls .kg-toggle-btn::after{ content:"Hide Templates"; }
-
         /* Templates panel */
         .kg-templates-panel{
           grid-area:templates;
@@ -294,11 +300,12 @@
           display:flex; flex-direction:column; overflow:hidden; resize:horizontal;
         }
         .kg-templates-header{
-          padding:16px; padding-top:56px; border-bottom:1px solid ${COLORS.border};
-          background:${COLORS.surface};
+          padding:16px; padding-top:12px; border-bottom:1px solid ${COLORS.border};
+          background:linear-gradient(135deg, ${COLORS.primary} 0%, #A04545 100%);
         }
         .kg-templates-title{
-          font-size:14px; font-weight:600; color:${COLORS.textPrimary}; margin:0;
+          font-size:14px; font-weight:600; color:${COLORS.surface}; margin:0;
+          text-shadow:0 1px 2px rgba(0,0,0,0.1);
         }
         .kg-templates-content{ flex:1; overflow:auto; padding:16px; }
 
@@ -306,9 +313,17 @@
         .kg-query-template{
           margin-bottom:12px; border:1px solid ${COLORS.border};
           border-radius:8px; overflow:hidden; background:${COLORS.surface};
-          transition:box-shadow 0.2s ease;
+          transition:all 0.25s ease;
         }
-        .kg-query-template:hover{ box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .kg-query-template:hover{
+          box-shadow:0 4px 12px rgba(139,58,58,0.15);
+          border-color:${COLORS.primary};
+          transform:translateY(-1px);
+        }
+        .kg-query-template.is-open{
+          box-shadow:0 4px 16px rgba(139,58,58,0.2);
+          border-color:${COLORS.primary};
+        }
         .kg-template-header{
           width:100%; padding:12px 14px; background:${COLORS.surface};
           border:none; border-bottom:1px solid transparent;
@@ -449,18 +464,58 @@
         .sparql-output .kg-grid tbody tr:nth-child(even){ background:${COLORS.background}; }
         .sparql-output .kg-grid tbody tr:nth-child(even):hover{ background:${COLORS.hover}; }
 
-        /* Collapse templates */
-        #${viewerId}-tpl-toggle{ display:none; }
-        #${viewerId}-tpl-toggle:not(:checked) ~ .kg-templates-panel{
-          width:0 !important; min-width:0 !important; border-right:none; padding:0; overflow:hidden;
+        /* Node popup for clicked nodes */
+        .kg-node-popup{
+          position:absolute; z-index:100;
+          background:${COLORS.surface}; border:1px solid ${COLORS.border};
+          border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.15);
+          min-width:200px; max-width:280px;
+          font-size:12px; overflow:hidden;
+          animation:nodePopupIn 0.2s ease-out;
         }
-        #${viewerId}-tpl-toggle:not(:checked) ~ .kg-templates-panel .kg-templates-header,
-        #${viewerId}-tpl-toggle:not(:checked) ~ .kg-templates-panel .kg-templates-content{ display:none; }
+        @keyframes nodePopupIn{
+          from{ opacity:0; transform:scale(0.9) translateY(-5px); }
+          to{ opacity:1; transform:scale(1) translateY(0); }
+        }
+        .kg-node-popup-header{
+          padding:12px 14px; background:${COLORS.primary};
+          display:flex; justify-content:space-between; align-items:center;
+        }
+        .kg-node-popup-title{
+          font-weight:600; color:${COLORS.surface}; margin:0;
+          font-size:13px; max-width:200px;
+          white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .kg-node-popup-close{
+          width:20px; height:20px; border:none; background:transparent;
+          color:${COLORS.surface}; cursor:pointer; border-radius:4px;
+          display:flex; align-items:center; justify-content:center;
+          opacity:0.8; transition:opacity 0.2s; font-size:16px; line-height:1;
+        }
+        .kg-node-popup-close:hover{ opacity:1; }
+        .kg-node-popup-body{ padding:12px 14px; }
+        .kg-node-popup-row{
+          display:flex; justify-content:space-between; align-items:flex-start;
+          padding:6px 0; border-bottom:1px solid ${COLORS.borderLight};
+        }
+        .kg-node-popup-row:last-child{ border-bottom:none; }
+        .kg-node-popup-label{
+          color:${COLORS.textSecondary}; font-weight:500; flex-shrink:0; margin-right:10px;
+        }
+        .kg-node-popup-value{
+          color:${COLORS.textPrimary}; text-align:right; word-break:break-word;
+        }
+        .kg-node-popup-badge{
+          display:inline-block; padding:3px 8px; border-radius:4px;
+          font-size:10px; font-weight:600; text-transform:uppercase;
+        }
+        .kg-node-popup-timer{
+          padding:8px 14px; background:${COLORS.background};
+          font-size:10px; color:${COLORS.textMuted}; text-align:center;
+        }
       </style>
 
       <div id="${viewerId}" class="kg-root">
-        <input type="checkbox" id="${viewerId}-tpl-toggle" checked />
-
         <!-- Header with title and info button -->
         <div class="kg-header">
           <h1 class="kg-title">Planning Ontology</h1>
@@ -518,7 +573,6 @@
         <!-- Controls below header -->
         <div class="kg-controls">
           <span class="slot-download" id="${viewerId}-download-slot"></span>
-          <label class="kg-btn kg-toggle-btn" for="${viewerId}-tpl-toggle" aria-label="Toggle templates"></label>
         </div>
 
         <!-- Templates panel -->
@@ -532,6 +586,8 @@
         <!-- Canvas -->
         <div class="kg-canvas">
           <svg id="${viewerId}-svg"></svg>
+          <!-- Node popup (appears on node click) -->
+          <div class="kg-node-popup" id="${viewerId}-node-popup" style="display:none;"></div>
           <!-- Graph Info Box -->
           <div class="kg-graph-info" id="${viewerId}-graph-info">
             <div class="kg-graph-info-header">
@@ -862,6 +918,181 @@
     }
 
     /**
+     * Create node popup handler for showing node details on click.
+     * @param {string} viewerId
+     * @param {object} graphData - { nodes, links }
+     * @param {any} store - rdflib store for additional metadata
+     * @returns {function} - Click handler function for nodes
+   */
+    function createNodePopupHandler(viewerId, graphData, store) {
+      const popup = document.getElementById(`${viewerId}-node-popup`);
+      let autoCloseTimer = null;
+      let countdownInterval = null;
+
+      // Get badge color based on node class
+      const getBadgeColor = (nodeClass) => {
+        const classStyle = D3_STYLE.node.classes[nodeClass];
+        return classStyle ? classStyle.fill : D3_STYLE.node.default.fill;
+      };
+
+      // Find connections for a node
+      const getConnections = (nodeId) => {
+        const incoming = graphData.links.filter(l => l.target.id === nodeId || l.target === nodeId);
+        const outgoing = graphData.links.filter(l => l.source.id === nodeId || l.source === nodeId);
+        return { incoming, outgoing };
+      };
+
+      // Get domain and range info from store
+      const getNodeMetadata = (nodeId) => {
+        let domain = null;
+        let range = null;
+        let comment = null;
+
+        store.statements.forEach(st => {
+          if (st.subject.value === nodeId) {
+            if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#domain') {
+              domain = shortLabel(st.object.value);
+            }
+            if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#range') {
+              range = shortLabel(st.object.value);
+            }
+            if (st.predicate.value === 'http://www.w3.org/2000/01/rdf-schema#comment' && st.object.termType === 'Literal') {
+              comment = st.object.value;
+            }
+          }
+        });
+
+        return { domain, range, comment };
+      };
+
+      const hidePopup = () => {
+        popup.style.display = 'none';
+        if (autoCloseTimer) clearTimeout(autoCloseTimer);
+        if (countdownInterval) clearInterval(countdownInterval);
+      };
+
+      const showPopup = (d, event) => {
+        // Clear existing timers
+        if (autoCloseTimer) clearTimeout(autoCloseTimer);
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        const { incoming, outgoing } = getConnections(d.id);
+        const metadata = getNodeMetadata(d.id);
+        const badgeColor = getBadgeColor(d.class);
+
+        // Build popup content
+        let html = `
+          <div class="kg-node-popup-header">
+            <span class="kg-node-popup-title" title="${d.label}">${d.label}</span>
+            <button class="kg-node-popup-close" aria-label="Close">&times;</button>
+          </div>
+          <div class="kg-node-popup-body">
+            <div class="kg-node-popup-row">
+              <span class="kg-node-popup-label">Type</span>
+              <span class="kg-node-popup-value">
+                <span class="kg-node-popup-badge" style="background:${badgeColor}; color:#fff;">
+                  ${d.class}
+                </span>
+              </span>
+            </div>
+            <div class="kg-node-popup-row">
+              <span class="kg-node-popup-label">Connections</span>
+              <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
+            </div>`;
+
+        if (metadata.domain) {
+          html += `
+            <div class="kg-node-popup-row">
+              <span class="kg-node-popup-label">Domain</span>
+              <span class="kg-node-popup-value">${metadata.domain}</span>
+            </div>`;
+        }
+
+        if (metadata.range) {
+          html += `
+            <div class="kg-node-popup-row">
+              <span class="kg-node-popup-label">Range</span>
+              <span class="kg-node-popup-value">${metadata.range}</span>
+            </div>`;
+        }
+
+        if (metadata.comment) {
+          html += `
+            <div class="kg-node-popup-row">
+              <span class="kg-node-popup-label">Comment</span>
+              <span class="kg-node-popup-value">${metadata.comment}</span>
+            </div>`;
+        }
+
+        html += `
+          </div>
+          <div class="kg-node-popup-timer">
+            Closing in <span id="${viewerId}-popup-countdown">30</span>s
+          </div>`;
+
+        popup.innerHTML = html;
+
+        // Position popup near the click, but within canvas bounds
+        const canvas = popup.parentElement;
+        const canvasRect = canvas.getBoundingClientRect();
+        let x = event.clientX - canvasRect.left + 15;
+        let y = event.clientY - canvasRect.top + 15;
+
+        // Keep popup within canvas bounds
+        popup.style.display = 'block';
+        const popupRect = popup.getBoundingClientRect();
+        if (x + popupRect.width > canvasRect.width - 20) {
+          x = canvasRect.width - popupRect.width - 20;
+        }
+        if (y + popupRect.height > canvasRect.height - 20) {
+          y = canvasRect.height - popupRect.height - 20;
+        }
+
+        popup.style.left = x + 'px';
+        popup.style.top = y + 'px';
+
+        // Attach close button handler
+        popup.querySelector('.kg-node-popup-close').addEventListener('click', hidePopup);
+
+        // Auto-close countdown
+        let countdown = 30;
+        const countdownEl = document.getElementById(`${viewerId}-popup-countdown`);
+
+        countdownInterval = setInterval(() => {
+          countdown--;
+          if (countdownEl) countdownEl.textContent = countdown;
+        }, 1000);
+
+        autoCloseTimer = setTimeout(hidePopup, 30000);
+      };
+
+      return { showPopup, hidePopup };
+    }
+
+    /**
+     * Start info button glow animation every 30 seconds.
+     * @param {string} viewerId
+   */
+    function startInfoButtonGlow(viewerId) {
+      const infoBtn = document.getElementById(`${viewerId}-info-btn`);
+      if (!infoBtn) return;
+
+      const triggerGlow = () => {
+        infoBtn.classList.add('glow');
+        // Remove class after animation completes (1s)
+        setTimeout(() => {
+          infoBtn.classList.remove('glow');
+        }, 1000);
+      };
+
+      // Initial glow after 3 seconds
+      setTimeout(triggerGlow, 3000);
+
+      // Then every 30 seconds
+      setInterval(triggerGlow, 30000);
+    }
+
+    /**
      * Inject a Download button into the viewer controls.
      * Creates a Blob and triggers a browser download when clicked.
      * @param {HTMLElement} container - The viewer root (with .kg-controls inside).
@@ -1084,10 +1315,16 @@
         const store = parseStore(ontologyString);
         const graphData = buildGraphData(store);
 
-        renderD3Graph(container, graphData);
+        // Create node popup handler and pass to D3 graph
+        const nodePopupHandler = createNodePopupHandler(viewerId, graphData, store);
+        renderD3Graph(container, graphData, nodePopupHandler);
+
         attachSparqlQueryHandler(store, container.id);
         attachDownloadLink(container, ontologyString);
         updateGraphInfo(viewerId, store, graphData);
+
+        // Start info button glow animation
+        startInfoButtonGlow(viewerId);
 
         console.log("✓ Knowledge Graph rendered");
       } catch (err) {
@@ -1310,7 +1547,7 @@
       return (type && ["problem", "action", "parameter", "effect", "precondition", "planner"].includes(type)) ? type : "other";
     }
 
-    function renderD3Graph(container, graphData) {
+    function renderD3Graph(container, graphData, nodePopupHandler) {
       const svg = window.d3.select(`#${container.id}-svg`);
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -1339,6 +1576,13 @@
         });
 
       svg.call(zoom);
+
+      // Close popup when clicking on canvas background
+      svg.on("click", function() {
+        if (nodePopupHandler) {
+          nodePopupHandler.hidePopup();
+        }
+      });
 
       // Main group for zooming/panning
       const g = svg.append("g");
@@ -1377,12 +1621,19 @@
         .selectAll("g")
         .data(graphData.nodes)
         .enter().append("g")
+        .style("cursor", "pointer")
         .call(window.d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
-          .on("end", dragended));
+          .on("end", dragended))
+        .on("click", function(event, d) {
+          event.stopPropagation();
+          if (nodePopupHandler) {
+            nodePopupHandler.showPopup(d, event);
+          }
+        });
 
-      // Add circles to nodes
+      // Add circles to nodes with hover effect
       node.append("circle")
         .attr("r", D3_STYLE.node.default.radius)
         .attr("fill", d => {
@@ -1390,7 +1641,19 @@
           return classStyle ? classStyle.fill : D3_STYLE.node.default.fill;
         })
         .attr("stroke", D3_STYLE.node.default.stroke)
-        .attr("stroke-width", D3_STYLE.node.default.strokeWidth);
+        .attr("stroke-width", D3_STYLE.node.default.strokeWidth)
+        .on("mouseenter", function() {
+          window.d3.select(this)
+            .transition().duration(150)
+            .attr("r", D3_STYLE.node.default.radius * 1.2)
+            .attr("stroke-width", 3);
+        })
+        .on("mouseleave", function() {
+          window.d3.select(this)
+            .transition().duration(150)
+            .attr("r", D3_STYLE.node.default.radius)
+            .attr("stroke-width", D3_STYLE.node.default.strokeWidth);
+        });
 
       // Add labels to nodes
       node.append("text")
