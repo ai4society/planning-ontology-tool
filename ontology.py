@@ -397,7 +397,10 @@ class OntologyBuilder:
         # Create Plan instance
         plan_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + '_plan')
         self.g.add((plan_URI, RDF.type, DUL.Plan))
-        self.g.add((plan_URI, RDFS.label, Literal(f"Plan for {problem_name}")))
+        plan_label = f"Plan for {problem_name}"
+        if plan_actions:
+            plan_label = f"{plan_label} ({len(plan_actions)} steps)"
+        self.g.add((plan_URI, RDFS.label, Literal(plan_label)))
 
         # Link problem to plan using hasPlan property
         self.g.add((problem_URI, self.planOntology.hasPlan, plan_URI))
@@ -410,7 +413,7 @@ class OntologyBuilder:
         for i, action in enumerate(plan_actions, 1):
             step_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + f'_plan_step_{i}')
             self.g.add((step_URI, RDF.type, self.planOntology.plan_step))
-            self.g.add((step_URI, RDFS.label, Literal(action)))
+            self.g.add((step_URI, RDFS.label, Literal(f"Step {i}: {action}")))
             self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.nonNegativeInteger)))
             self.g.add((plan_URI, self.planOntology.hasPlanStep, step_URI))
 

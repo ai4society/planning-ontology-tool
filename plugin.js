@@ -49,6 +49,8 @@
       classes: {
         domain: { fill: '#E57373' },      // Soft vibrant red
         problem: { fill: '#81C784' },     // Soft vibrant green
+        plan: { fill: '#A3C9A8' },        // Muted mint for plan containers
+        plan_step: { fill: '#F9CE6B' },   // Warm yellow for plan steps
         action: { fill: '#64B5F6' },      // Soft vibrant blue
         precondition: { fill: '#4DD0E1' }, // Soft vibrant cyan
         effect: { fill: '#BA68C8' },      // Soft vibrant purple
@@ -748,6 +750,23 @@
             LIMIT 20`),
           defaultOpen: false
         },
+        {
+          title: "Plan Steps (if available)",
+          description: "Lists plan steps in execution order for problems that include a generated plan.",
+          query: formatQuery(`
+            PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT ?problem ?plan ?step ?number ?label
+            WHERE {
+              ?problem planning:hasPlan ?plan .
+              ?plan planning:hasPlanStep ?step .
+              ?step planning:hasStepNumber ?number .
+              ?step rdfs:label ?label .
+            }
+            ORDER BY ?problem ?number`),
+          defaultOpen: false
+        },
       ];
 
       const container = document.getElementById(`${viewerId}-templates-content`);
@@ -1139,28 +1158,97 @@
     }
 
     /**
+     * Escape an editor id for CSS selectors (handles spaces/parens in "Plan (1)" tabs).
+     * @param {string} id
+     * @returns {string}
+   */
+    function escapeSelector(id) {
+      if (window.CSS && CSS.escape)
+        return CSS.escape(id);
+      return id.replace(/([ #;?%&,.+*~\\':"!^$[\\]()=>|\\/])/g, '\\$1');
+    }
+
+    /**
+     * Resolve the visible tab label for an editor id, falling back to the id itself.
+     * @param {string} editorId
+     * @returns {string}
+   */
+    function getTabLabel(editorId) {
+      const labelEl = document.querySelector(`#tab-${escapeSelector(editorId)}`);
+      if (!labelEl) return editorId;
+      const txt = (labelEl.textContent || "").replace(/\s*×$/, "").trim();
+      return txt || editorId;
+    }
+
+    /**
+     * Collect open editor ids/labels. Uses window.pddl_files when available
+     * and falls back to scanning tab anchors (captures planner-created "Plan (n)" tabs).
+     * @returns {Array<{id:string,label:string}>}
+   */
+    function collectOpenEditors() {
+      const editors = [];
+      const seen = new Set();
+      const closed = Array.isArray(window.closed_editors) ? window.closed_editors : [];
+
+      if (Array.isArray(window.pddl_files)) {
+        window.pddl_files.forEach(id => {
+          if (closed.includes(id) || seen.has(id)) return;
+          editors.push({ id, label: getTabLabel(id) });
+          seen.add(id);
+        });
+      }
+
+      // Planner-created plan tabs might not be in window.pddl_files; scan DOM anchors.
+      document.querySelectorAll('a[data-toggle="tab"]').forEach(el => {
+        const href = el.getAttribute('href') || '';
+        if (!href.startsWith('#')) return;
+        const id = href.slice(1);
+        if (!id || closed.includes(id) || seen.has(id)) return;
+        const label = ((el.textContent || "").replace(/\s*×$/, "").trim()) || id;
+        editors.push({ id, label });
+        seen.add(id);
+      });
+
+      return editors;
+    }
+
+    /**
      * Populate domain/problem/plan dropdowns by scanning open PDDL editors.
      * Uses regex to detect "(domain", "(problem", or plan files (actions starting with "(").
    */
     function fileChooser() {
       var domainOpts = "", problemOpts = "", planOpts = "";
 
-      window.pddl_files.forEach(function(fileName) {
-        if (window.closed_editors.includes(fileName))
-          return;
+      const editors = collectOpenEditors();
 
-        var label = $('#tab-' + fileName).text();
-        // Get the text from the file
-        var txt = ace.edit(fileName).getSession().getValue();
+      editors.forEach(function(editorInfo) {
+        const fileName = editorInfo.id;
+        const label = editorInfo.label || fileName;
+
+        // Skip Knowledge Graph tabs the plugin creates itself
+        if (/^Knowledge Graph/i.test(label)) return;
+
+        // Get the text from the file (if ace editor exists)
+        let editorText = "";
+        try {
+          const editorInstance = ace.edit(fileName);
+          if (editorInstance && editorInstance.getSession) {
+            editorText = editorInstance.getSession().getValue();
+          }
+        } catch (e) {
+          console.warn("Skipping non-ACE tab", fileName, e);
+          return;
+        }
+
         var opt = `<option value="${fileName}">${label}</option>\n`;
 
         // Check if the file is a domain, problem, or plan
         // Plan detection: check tab name (Planning-as-a-Service uses "Plan (1)", etc.) OR content
-        if (/\(domain/i.test(txt))
+        if (/\(domain/i.test(editorText))
           domainOpts += opt;
-        else if (/\(problem/i.test(txt))
+        else if (/\(problem/i.test(editorText))
           problemOpts += opt;
-        else if (/^Plan\s*\(/i.test(label) || isPlanFile(txt))
+        else if (/^Plan\s*\(/i.test(label) || isPlanFile(editorText))
           planOpts += opt;
       });
 
@@ -1607,7 +1695,8 @@
         return "domain";
 
       const type = classMap.get(uri);
-      return (type && ["problem", "action", "parameter", "effect", "precondition", "planner"].includes(type)) ? type : "other";
+      const knownTypes = ["problem", "action", "parameter", "effect", "precondition", "planner", "plan", "plan_step"];
+      return (type && knownTypes.includes(type)) ? type : "other";
     }
 
     function renderD3Graph(container, graphData, nodePopupHandler) {
