@@ -61,15 +61,21 @@ class PDDLParser:
         """
             Parse a plan file and extract the sequence of actions.
             Plan files contain lines like: (action-name param1 param2 ...)
+            Handles Planning-as-a-Service output format which includes headers and action definitions.
         """
         plan_actions = []
         for line in self.plan_text.splitlines():
             line = line.strip()
-            # Skip empty lines and comments
-            if not line or line.startswith(';'):
+            # Skip empty lines, comments, and headers
+            if not line or line.startswith(';') or 'Found Plan' in line:
                 continue
-            # Match action lines: (action-name ...)
-            if line.startswith('(') and line.endswith(')'):
+            # Skip PDDL keywords (action definitions, not plan steps)
+            # These start with (: like (:action, (:parameters, etc.
+            if line.startswith('(:') or line.startswith(':'):
+                continue
+            # Only match simple action calls: (action-name args...)
+            # Must start with ( and end with ), and not contain PDDL keywords
+            if line.startswith('(') and line.endswith(')') and '(:' not in line:
                 plan_actions.append(line)
 
         if plan_actions and hasattr(self, 'problem_name'):

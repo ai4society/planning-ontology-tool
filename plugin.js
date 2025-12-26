@@ -1155,11 +1155,12 @@
         var opt = `<option value="${fileName}">${label}</option>\n`;
 
         // Check if the file is a domain, problem, or plan
+        // Plan detection: check tab name (Planning-as-a-Service uses "Plan (1)", etc.) OR content
         if (/\(domain/i.test(txt))
           domainOpts += opt;
         else if (/\(problem/i.test(txt))
           problemOpts += opt;
-        else if (isPlanFile(txt))
+        else if (/^Plan\s*\(/i.test(label) || isPlanFile(txt))
           planOpts += opt;
       });
 
@@ -1171,12 +1172,15 @@
 
     /**
      * Check if a file content looks like a plan file.
-     * Plan files contain lines starting with "(" followed by an action name.
+     * Detects Planning-as-a-Service output or other plan formats.
      * @param {string} txt - File content
      * @returns {boolean} - True if it looks like a plan file
    */
     function isPlanFile(txt) {
-      // Remove comments (lines starting with ;)
+      // Check for Planning-as-a-Service header
+      if (/Found Plan/i.test(txt)) return true;
+
+      // Filter non-empty, non-comment lines
       var lines = txt.split('\n').filter(line => {
         var trimmed = line.trim();
         return trimmed && !trimmed.startsWith(';');
@@ -1184,19 +1188,20 @@
 
       if (lines.length === 0) return false;
 
-      // Check if most non-empty lines start with "(" and look like actions
-      // Plan actions typically look like: (action-name param1 param2 ...)
+      // Count simple action calls (not PDDL definitions)
+      // Plan actions: (action-name param1 param2) - no colons after (
+      // PDDL actions: (:action name ...) - has colon after (
       var actionLineCount = 0;
       for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim();
-        // Plan action lines start with ( and contain action name
-        if (/^\([a-zA-Z][\w\-]*/.test(line)) {
+        // Match simple action calls: start with ( but NOT followed by :
+        if (/^\([a-zA-Z][\w\-]*(\s|$|\))/.test(line) && !line.startsWith('(:')) {
           actionLineCount++;
         }
       }
 
-      // If at least 50% of non-empty lines look like action calls, it's likely a plan
-      return actionLineCount > 0 && (actionLineCount / lines.length) >= 0.5;
+      // If at least 30% of non-empty lines look like simple action calls, it's likely a plan
+      return actionLineCount > 0 && (actionLineCount / lines.length) >= 0.3;
     }
 
     /**
