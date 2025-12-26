@@ -519,13 +519,12 @@ define(function (require, exports, module) {
         .sparql-output .kg-grid th:last-child{ border-radius:0 6px 0 0; }
         .sparql-output .kg-grid td{
           padding:10px 12px; border-bottom:1px solid ${COLORS.borderLight};
-          color:${COLORS.textPrimary}; word-wrap:break-word;
-          word-break:break-word; max-width:300px;
+          color:${COLORS.textPrimary};
         }
         .sparql-output .kg-grid td.text-long{
           max-width:300px; white-space:nowrap; overflow:hidden;
           text-overflow:ellipsis; cursor:pointer; color:${COLORS.accentBlue};
-          font-weight:500;
+          font-weight:500; word-break:normal; word-wrap:normal;
         }
         .sparql-output .kg-grid td.text-long:hover{
           text-decoration:underline;
@@ -1768,6 +1767,16 @@ define(function (require, exports, module) {
   function executeSparqlQuery(store, inputEl, outputEl) {
     const queryString = inputEl.value.trim();
     outputEl.textContent = "";
+
+    // Clear the detail view when a new query runs
+    const container = outputEl.closest('.sparql-output-container');
+    if (container) {
+      const detailView = container.querySelector('.sparql-detail-view');
+      if (detailView) {
+        detailView.classList.remove('active');
+        detailView.querySelector('.sparql-detail-content').textContent = '';
+      }
+    }
 
     if (!queryString) {
       outputEl.textContent = "Please enter a SPARQL query.";
