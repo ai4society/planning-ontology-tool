@@ -555,7 +555,13 @@ define(function (require, exports, module) {
         <div class="kg-header">
           <div class="kg-header-top">
             <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
-            <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
+            <div class="kg-header-actions">
+              <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download RDF">
+                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                 Download RDF
+              </button>
+              <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
+            </div>
           </div>
         </div>
 
@@ -1020,8 +1026,6 @@ define(function (require, exports, module) {
           <span class="kg-node-popup-label">Connections</span>
           <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
         </div>
-        <div class="kg-node-popup-row">
-          <span class="kg-node-popup-label">URI</span>
           <span class="kg-node-popup-value" style="font-size:10px; opacity:0.7;">${shortLabel(d.id)}</span>
         </div>
         `;
@@ -1498,6 +1502,9 @@ define(function (require, exports, module) {
       attachSparqlQueryHandler(store, container.id);
       updateGraphInfo(viewerId, store, graphData);
 
+      // Attach download handler using the original RDF/XML string
+      attachDownloadHandler(viewerId, ontologyString);
+
       console.log("✓ Knowledge Graph rendered");
     } catch (err) {
       console.error("❌ Erro in createKnowledgeGraphTab:", err.message);
@@ -1518,6 +1525,50 @@ define(function (require, exports, module) {
 
     runQueryButton.addEventListener('click', () => executeSparqlQuery(store, inputEl, outputEl));
     clearResultsButton.addEventListener('click', () => { outputEl.textContent = ""; });
+  }
+
+  /**
+   * Attach download button handler to save RDF content.
+   * @param {string} viewerId
+   * @param {string} rdfContent
+   */
+  function attachDownloadHandler(viewerId, rdfContent) {
+    const downloadBtn = document.getElementById(`${viewerId}-download-btn`);
+    if (!downloadBtn) return;
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([rdfContent], { type: 'application/rdf+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'planning-ontology-graph.rdf'; // Default filename
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  /**
+   * Attach download button handler to save RDF content.
+   * @param {string} viewerId
+   * @param {string} rdfContent
+   */
+  function attachDownloadHandler(viewerId, rdfContent) {
+    const downloadBtn = document.getElementById(`${viewerId}-download-btn`);
+    if (!downloadBtn) return;
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([rdfContent], { type: 'application/rdf+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'planning-ontology-graph.rdf'; // Default filename
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
   }
 
   /**
