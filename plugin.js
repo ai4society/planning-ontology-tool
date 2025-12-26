@@ -206,7 +206,7 @@
         }
         .kg-description{
           font-size:11px; line-height:1.4; color:${COLORS.textSecondary};
-          margin:0; max-width:600px;
+          margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
         }
         .kg-description em{ color:${COLORS.primary}; font-style:italic; }
         .kg-description .kg-link{
@@ -305,12 +305,12 @@
           padding-top:50px; /* Leave room for main header */
         }
         .kg-templates-header{
-          padding:14px 16px; border-bottom:1px solid ${COLORS.border};
-          background:linear-gradient(135deg, ${COLORS.primary} 0%, #A04545 100%);
+          padding:10px 16px; border-bottom:1px solid ${COLORS.border};
+          background:${COLORS.background};
         }
         .kg-templates-title{
-          font-size:14px; font-weight:600; color:${COLORS.surface}; margin:0;
-          text-shadow:0 1px 2px rgba(0,0,0,0.1);
+          font-size:11px; font-weight:600; color:${COLORS.textMuted}; margin:0;
+          text-transform:uppercase; letter-spacing:0.5px;
         }
         .kg-templates-content{ flex:1; overflow:auto; padding:16px; }
 
