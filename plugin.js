@@ -1199,12 +1199,35 @@ define(function (require, exports, module) {
     }
 
     // Planner-created plan tabs might not be in window.pddl_files; scan DOM anchors.
-    document.querySelectorAll('a[data-toggle="tab"]').forEach(el => {
+    // Support both standard Bootstrap tabs and .pddl-tab class used by solvers
+    const candidates = document.querySelectorAll('a[data-toggle="tab"], a.pddl-tab');
+    candidates.forEach(el => {
+      let id = "";
       const href = el.getAttribute('href') || '';
-      if (!href.startsWith('#')) return;
-      const id = href.slice(1);
+
+      // Strategy 1: standard href="#id"
+      if (href.startsWith('#') && href.length > 1) {
+        id = href.slice(1);
+      }
+
+      // Strategy 2: derive from element ID (e.g. id="tab-editor4" -> "editor4")
+      if (!id && el.id && el.id.startsWith('tab-')) {
+        id = el.id.substring(4); // remove "tab-"
+      }
+
+      // Strategy 3: try onclick parsing as last resort (e.g. changeDocument('editor4'))
+      if (!id) {
+        const onClick = el.getAttribute('onclick');
+        if (onClick) {
+          const match = onClick.match(/changeDocument\(['"]([^'"]+)['"]\)/);
+          if (match) id = match[1];
+        }
+      }
+
       if (!id || closed.includes(id) || seen.has(id)) return;
-      const label = ((el.textContent || "").replace(/\s*×$/, "").trim()) || id;
+
+      // Use innerText/textContent and clean up 'x' close button text
+      const label = ((el.innerText || el.textContent || "").replace(/\s*×$/, "").trim()) || id;
       editors.push({ id, label });
       seen.add(id);
     });
