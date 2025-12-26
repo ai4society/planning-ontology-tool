@@ -50,7 +50,7 @@ Reusing the same domain keeps your plugin URL stable even after updates.
 
 **Important:** Every time you update the code in your Gist, the "Raw" URL changes. Make sure to always copy the new URL after each update.
 
----
+<!-- ---
 
 ### Quick access with the plugin
 
@@ -59,9 +59,28 @@ To access the `editor.planning.domains` with the plugin already loaded, simply a
 - **With Surge:**
   `https://editor.planning.domains/#https://{your-surge-url}/plugin.js`
 - **With Gist:**
-  `https://editor.planning.domains/#{your-gist-url}` 
+  `https://editor.planning.domains/#{your-gist-url}`
 
 
 
 ### You can check other plugins' code at this link
-https://github.com/AI-Planning?q=Plugin
+https://github.com/AI-Planning?q=Plugin -->
+
+---
+
+## Citation
+
+If you use this plugin in your research, please cite the following paper:
+
+```bibtex
+@article{muppasani2025building,
+  title={Building a planning ontology to represent and exploit planning knowledge and its aplications},
+  author={Muppasani, Bharath Chandra and Gupta, Nitin and Pallagani, Vishal and Srivastava, Biplav and Mutharaju, Raghava and Huhns, Michael N and Narayanan, Vignesh},
+  journal={Discover Data},
+  volume={3},
+  number={1},
+  pages={55},
+  year={2025},
+  publisher={Springer}
+}
+```
