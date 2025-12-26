@@ -214,6 +214,26 @@ define(function (require, exports, module) {
         .kg-header-top{
           display:flex; align-items:center; gap:10px; margin-bottom:4px;
         }
+        .kg-header-actions{
+          display:flex; align-items:center; gap:8px; margin-left:auto;
+        }
+        .kg-action-btn{
+          display:inline-flex; align-items:center; justify-content:center;
+          padding:6px 12px; border-radius:4px;
+          border:1.5px solid ${COLORS.primary}; background:${COLORS.surface};
+          color:${COLORS.primary}; cursor:pointer; font-size:13px; font-weight:500;
+          font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          transition:all 0.2s ease; white-space:nowrap;
+        }
+        .kg-action-btn:hover{
+          background:${COLORS.primary}; color:${COLORS.surface};
+        }
+        .kg-action-btn svg{
+          transition:all 0.2s ease;
+        }
+        .kg-action-btn:hover svg{
+          stroke:${COLORS.surface};
+        }
         .kg-title{
           font-size:17px; font-weight:600; color:${COLORS.primary};
           margin:0; letter-spacing:-0.3px;
@@ -556,9 +576,9 @@ define(function (require, exports, module) {
           <div class="kg-header-top">
             <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
             <div class="kg-header-actions">
-              <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download RDF">
+              <button class="kg-action-btn" id="${viewerId}-download-btn" title="Download Knowledge Graph">
                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                 Download RDF
+                 Download Knowledge Graph
               </button>
               <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
             </div>
@@ -1550,28 +1570,6 @@ define(function (require, exports, module) {
   }
 
   /**
-   * Attach download button handler to save RDF content.
-   * @param {string} viewerId
-   * @param {string} rdfContent
-   */
-  function attachDownloadHandler(viewerId, rdfContent) {
-    const downloadBtn = document.getElementById(`${viewerId}-download-btn`);
-    if (!downloadBtn) return;
-
-    downloadBtn.addEventListener('click', () => {
-      const blob = new Blob([rdfContent], { type: 'application/rdf+xml' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'planning-ontology-graph.rdf'; // Default filename
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-  }
-
-  /**
    * Execute a SPARQL query using Comunica over an N3 store built from rdflib statements.
    * @param {any} rdflibStore
    * @param {string} queryString
@@ -1642,16 +1640,28 @@ define(function (require, exports, module) {
         // Helper to format RDF terms for display
         const formatValue = term => {
           if (!term) return "";
-          // If it's an object with a .value property (Comunica/RDFJS term)
-          if (typeof term === 'object' && term.value) {
-            // For URIs, show short form
-            if (term.termType === 'NamedNode') {
+
+          // Handle RDFJS term objects (from Comunica)
+          if (typeof term === 'object') {
+            // For Literals (including typed literals like xsd:Integer)
+            if (term.termType === 'Literal') {
+              return term.value; // Returns the actual value (e.g., "3" for step numbers)
+            }
+            // For URIs/Named Nodes
+            if (term.termType === 'NamedNode' && term.value) {
               return term.value.split(/[#\/]/).pop();
             }
-            // For Literals, just return the value (hides datatype)
-            return term.value;
+            // For Blank Nodes
+            if (term.termType === 'BlankNode') {
+              return '_:' + (term.value || 'blank');
+            }
+            // Fallback for objects with .value property
+            if (term.value) {
+              return term.value;
+            }
           }
-          // Fallback for simple strings (though Comunica usually returns objects)
+
+          // Fallback for simple strings
           return String(term).split(/[#\/]/).pop();
         };
 
