@@ -204,6 +204,12 @@
           font-size:17px; font-weight:600; color:${COLORS.primary};
           margin:0; letter-spacing:-0.3px;
         }
+        .kg-title a{
+          color:inherit; text-decoration:none;
+        }
+        .kg-title a:hover{
+          text-decoration:underline;
+        }
         .kg-description{
           font-size:11px; line-height:1.4; color:${COLORS.textSecondary};
           margin:0; word-wrap:break-word; white-space:normal;
@@ -528,7 +534,7 @@
         <!-- Header with title and info button -->
         <div class="kg-header">
           <div class="kg-header-top">
-            <h1 class="kg-title">Planning Ontology</h1>
+            <h1 class="kg-title"><a href="https://ai4society.github.io/planning-ontology/" target="_blank" rel="noopener">Planning Ontology</a></h1>
             <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
           </div>
         </div>
@@ -804,17 +810,19 @@
     /**
      * Attach event handlers for info popup (open, close, copy BibTeX).
      * @param {string} viewerId
+     * @param {function} stopGlow - Optional function to stop the glow animation
    */
-    function attachInfoPopupHandler(viewerId) {
+    function attachInfoPopupHandler(viewerId, stopGlow) {
       const infoBtn = document.getElementById(`${viewerId}-info-btn`);
       const infoLink = document.getElementById(`${viewerId}-info-link`);
       const infoPopup = document.getElementById(`${viewerId}-info-popup`);
       const closeBtn = document.getElementById(`${viewerId}-info-close`);
       const copyBtn = document.getElementById(`${viewerId}-copy-bibtex`);
 
-      // Open popup from info button
+      // Open popup from info button and stop glow animation
       infoBtn.addEventListener('click', () => {
         infoPopup.style.display = 'flex';
+        if (stopGlow) stopGlow();
       });
 
       // Open popup from description link
@@ -877,7 +885,9 @@
       const infoBox = document.getElementById(`${viewerId}-graph-info`);
       const toggleBtn = document.getElementById(`${viewerId}-graph-info-toggle`);
 
-      toggleBtn.addEventListener('click', () => {
+      // Make entire box clickable for toggle
+      infoBox.style.cursor = 'pointer';
+      infoBox.addEventListener('click', () => {
         infoBox.classList.toggle('is-collapsed');
         // Rotate the chevron icon
         const svg = toggleBtn.querySelector('svg');
@@ -1085,11 +1095,16 @@
 
     /**
      * Start info button glow animation every 30 seconds.
+     * Returns a stop function to cancel the glow animation.
      * @param {string} viewerId
+     * @returns {function} - Call this to stop the glow animation
    */
     function startInfoButtonGlow(viewerId) {
       const infoBtn = document.getElementById(`${viewerId}-info-btn`);
-      if (!infoBtn) return;
+      if (!infoBtn) return () => {};
+
+      let initialTimeout = null;
+      let glowInterval = null;
 
       const triggerGlow = () => {
         infoBtn.classList.add('glow');
@@ -1100,10 +1115,18 @@
       };
 
       // Initial glow after 3 seconds
-      setTimeout(triggerGlow, 3000);
+      initialTimeout = setTimeout(() => {
+        triggerGlow();
+        // Then every 30 seconds
+        glowInterval = setInterval(triggerGlow, 30000);
+      }, 3000);
 
-      // Then every 30 seconds
-      setInterval(triggerGlow, 30000);
+      // Return stop function
+      return () => {
+        if (initialTimeout) clearTimeout(initialTimeout);
+        if (glowInterval) clearInterval(glowInterval);
+        infoBtn.classList.remove('glow');
+      };
     }
 
     /**
@@ -1290,7 +1313,11 @@
 
         attachQueryTemplates(viewerId);
         attachTemplateHandlers(viewerId);
-        attachInfoPopupHandler(viewerId);
+
+        // Start info button glow animation and get stop function
+        const stopGlow = startInfoButtonGlow(viewerId);
+        attachInfoPopupHandler(viewerId, stopGlow);
+
         attachGraphInfoToggle(viewerId);
         knowledgeGraphTabsCount += 1;
 
@@ -1307,9 +1334,6 @@
 
         attachSparqlQueryHandler(store, container.id);
         updateGraphInfo(viewerId, store, graphData);
-
-        // Start info button glow animation
-        startInfoButtonGlow(viewerId);
 
         console.log("✓ Knowledge Graph rendered");
       } catch (err) {
