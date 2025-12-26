@@ -66,30 +66,36 @@ class PDDLParser:
         plan_actions = []
         
         # Pre-cleaning: Remove likely PDDL definition blocks if they appear after the plan
-        # If we see "(:action", we assume everything after is definitions, not plan steps
         clean_text = self.plan_text
         if '(:action' in clean_text:
             clean_text = clean_text.split('(:action')[0]
             
-        # Use find_parens to robustly identify all top-level parenthesized groups
-        # This handles: (act a)(act b) on the same line
-        parens = find_parens(clean_text)
-        sorted_starts = sorted(parens.keys())
+        # Robustly identify all top-level parenthesized groups
+        # We cannot use self.find_parens() directly if it stops at the first group.
+        # We implement a simple stack-based parser here for the plan content.
+        pstack = []
+        start_indices = {}
         
-        for start in sorted_starts:
-            end = parens[start]
-            segment = clean_text[start:end+1].strip()
-            
-            # Filter valid actions:
-            # 1. Must start with ( and end with )
-            # 2. Must NOT start with (: (PDDL definition)
-            # 3. Must NOT be a comment or header junk
-            if segment.startswith('(') and segment.endswith(')') and not segment.startswith('(:') and not segment.startswith(';'):
-                # Heuristic: Valid plans usually don't have nested parens (unless complex types), 
-                # but simple actions are (name arg1 arg2).
-                # Verify it looks like an action call: (word ...)
-                if re.match(r'\(\s*[a-zA-Z][\w\-]*', segment):
-                    plan_actions.append(segment)
+        for i, c in enumerate(clean_text):
+            if c == '(':
+                pstack.append(i)
+            elif c == ')':
+                if pstack:
+                    start = pstack.pop()
+                    # If stack is empty, we found a top-level group
+                    if not pstack:
+                        segment = clean_text[start:i+1].strip()
+                        
+                        # Filter valid actions:
+                        if segment.startswith('(') and segment.endswith(')') and not segment.startswith('(:') and not segment.startswith(';'):
+                            # Filter out non-action groups like "(output)" or "(plan)"
+                            # Valid actions usually look like (name arg1 arg2)
+                            if re.match(r'\(\s*[a-zA-Z][\w\-]+(\s+[a-zA-Z0-9\?\-\._]+)*\s*\)', segment):
+                                # Skip "(output)" if it's just a single word that might be a header
+                                # But some actions might be 0-arity (move). 
+                                # We'll allow 0-arity if it doesn't look like specific noise.
+                                if segment.lower() not in ['(output)', '(plan)', '(found plan)']:
+                                    plan_actions.append(segment)
 
         if plan_actions and hasattr(self, 'problem_name'):
             # Add plan to the problem data

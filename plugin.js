@@ -680,97 +680,75 @@ define(function (require, exports, module) {
   }
 
   /**
-   * Append preset SPARQL query templates into the Templates panel.
+   * Attach query templates to the side panel.
    * @param {string} viewerId
- */
+   */
   function attachQueryTemplates(viewerId) {
+    const formatQuery = (q) => q.replace(/^\s+/gm, '').trim();
+
     const templates = [
       {
-        title: "List Actions of a Domain",
-        description: "Retrieves all actions associated with a specific planning domain.",
+        title: "All Actions",
+        description: "List all actions defined in the domain",
         query: formatQuery(`
-            PREFIX plan-ontology: <https://purl.org/ai4s/ontology/planning#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT DISTINCT ?domain ?action
-            WHERE {
-                ?domain a plan-ontology:domain;
-                        rdfs:label "your-domain".
-                ?domain plan-ontology:hasMove ?action.
+            SELECT ?action ?label WHERE {
+              ?action rdf:type plan:Action .
+              ?action rdfs:label ?label .
             }`),
         defaultOpen: true
       },
       {
-        title: "Actions and Preconditions",
-        description: "Displays actions and their respective preconditions defined in the ontology.",
+        title: "Action Preconditions",
+        description: "Show preconditions for each action",
         query: formatQuery(`
-            PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
-            SELECT ?action ?precondition
-            WHERE {
-              ?action a planning:action .
-              ?action planning:hasPrecondition ?precondition .
-            }
-            LIMIT 20`),
-        defaultOpen: true
-      },
-      {
-        title: "Domain Requirements",
-        description: "Shows the requirements associated with a specific planning domain.",
-        query: formatQuery(`
-            PREFIX plan-ontology: <https://purl.org/ai4s/ontology/planning#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT DISTINCT ?domain ?requirement
-            WHERE {
-                ?domain a plan-ontology:domain;
-                        rdfs:label "your-domain".
-                ?domain plan-ontology:hasRequirement ?requirement.
+            SELECT ?actionLabel ?preconditionLabel WHERE {
+              ?action rdf:type plan:Action .
+              ?action rdfs:label ?actionLabel .
+              ?action plan:hasPrecondition ?prec .
+              ?prec rdfs:label ?preconditionLabel .
             }`),
         defaultOpen: false
       },
       {
         title: "Action Effects",
-        description: "Lists all actions with their effects in the planning domain.",
+        description: "Show effects for each action",
         query: formatQuery(`
-            PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
-            SELECT ?action ?effect
-            WHERE {
-              ?action a planning:action .
-              ?action planning:hasEffect ?effect .
-            }
-            LIMIT 20`),
-        defaultOpen: false
-      },
-      {
-        title: "Action Parameters",
-        description: "Shows parameters for each action in the domain.",
-        query: formatQuery(`
-            PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
-            SELECT ?action ?parameter
-            WHERE {
-              ?action a planning:action .
-              ?action planning:hasParameter ?parameter .
-            }
-            LIMIT 20`),
-        defaultOpen: false
-      },
-      {
-        title: "Plan Steps (if available)",
-        description: "Lists plan steps in execution order for problems that include a generated plan.",
-        query: formatQuery(`
-            PREFIX planning: <https://purl.org/ai4s/ontology/planning#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?problem ?plan ?step ?number ?label
-            WHERE {
-              ?problem planning:hasPlan ?plan .
-              ?plan planning:hasPlanStep ?step .
-              ?step planning:hasStepNumber ?number .
-              ?step rdfs:label ?label .
-            }
-            ORDER BY ?problem ?number`),
+            SELECT ?actionLabel ?effectLabel WHERE {
+              ?action rdf:type plan:Action .
+              ?action rdfs:label ?actionLabel .
+              ?action plan:hasEffect ?eff .
+              ?eff rdfs:label ?effectLabel .
+            }`),
         defaultOpen: false
       },
+      {
+        title: "Plan Steps",
+        description: "List the sequence of steps in the plan",
+        query: formatQuery(`
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+
+            SELECT ?stepNumber ?stepLabel WHERE {
+              ?plan rdf:type <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#Plan> .
+              ?plan plan:hasPlanStep ?step .
+              ?step plan:hasStepNumber ?stepNumber .
+              ?step rdfs:label ?stepLabel .
+            } ORDER BY ?stepNumber`),
+        defaultOpen: false
+      }
     ];
 
     const container = document.getElementById(`${viewerId}-templates-content`);
@@ -885,7 +863,7 @@ define(function (require, exports, module) {
 
     // Copy BibTeX to clipboard
     copyBtn.addEventListener('click', () => {
-      const bibtex = document.querySelector(`#${viewerId}-info-popup .kg-bibtex`).textContent;
+      const bibtex = document.querySelector(`#${viewerId}-info-popup.kg-bibtex`).textContent;
       navigator.clipboard.writeText(bibtex).then(() => {
         const originalText = copyBtn.textContent;
         copyBtn.textContent = 'Copied!';
@@ -1024,24 +1002,30 @@ define(function (require, exports, module) {
           <h3 class="kg-node-popup-title" title="${d.label}">${d.label}</h3>
           <button class="kg-node-popup-close" aria-label="Close">&times;</button>
         </div>
-        <div class="kg-node-popup-body">
-          <div class="kg-node-popup-row">
-            <span class="kg-node-popup-label">Type</span>
-            <span class="kg-node-popup-value">
-              <span class="kg-node-popup-badge" style="background:${badgeColor}; color:#fff;">
-                ${d.class}
-              </span>
+      <div class="kg-node-popup-body">
+        <div class="kg-node-popup-row">
+          <span class="kg-node-popup-label">Type</span>
+          <span class="kg-node-popup-value">
+            <span class="kg-node-popup-badge" style="background:${badgeColor}; color:#fff;">
+              ${d.class}
             </span>
-          </div>
-          <div class="kg-node-popup-row">
-            <span class="kg-node-popup-label">Connections</span>
-            <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
-          </div>
-          <div class="kg-node-popup-row">
-            <span class="kg-node-popup-label">URI</span>
-            <span class="kg-node-popup-value" style="font-size:10px; opacity:0.7;">${shortLabel(d.id)}</span>
-          </div>
-      `;
+          </span>
+        </div>
+        <div class="kg-node-popup-row">
+          <span class="kg-node-popup-label">Connections</span>
+          <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
+        </div>
+        <div class="kg-node-popup-row">
+        </div>
+        <div class="kg-node-popup-row">
+          <span class="kg-node-popup-label">Connections</span>
+          <span class="kg-node-popup-value">${incoming.length} in / ${outgoing.length} out</span>
+        </div>
+        <div class="kg-node-popup-row">
+          <span class="kg-node-popup-label">URI</span>
+          <span class="kg-node-popup-value" style="font-size:10px; opacity:0.7;">${shortLabel(d.id)}</span>
+        </div>
+        `;
 
       // Add other properties (excluding label which is in header)
       store.statements.forEach(st => {
@@ -1054,11 +1038,11 @@ define(function (require, exports, module) {
           }
 
           popupContent += `
-            <div class="kg-node-popup-row">
-              <span class="kg-node-popup-label">${shortLabel(st.predicate.value)}</span>
-              <span class="kg-node-popup-value">${st.object.value}</span>
-            </div>
-          `;
+        <div class="kg-node-popup-row">
+          <span class="kg-node-popup-label">${shortLabel(st.predicate.value)}</span>
+          <span class="kg-node-popup-value">${st.object.value}</span>
+        </div>
+        `;
         }
       });
 
@@ -1689,6 +1673,19 @@ define(function (require, exports, module) {
     store.statements.forEach(st => {
       if (RDF_IGNORE_PREDICATES.includes(st.predicate.value)) return;
       if (st.object.termType === "Literal") return;
+
+      // Filter out schema/ontology definition nodes
+      // If a node is just an owl:Class or owl:ObjectProperty, we might want to hide it
+      // unless it is the type of some instance.
+      // For now, let's just filter out nodes that are explicitly typed as owl:Class or owl:Ontology
+      // if they are not the domain itself.
+      // (This is a heuristic: we prefer to see the Plan/Problem/Domain instances)
+      // Check if the object is an ontology meta-class
+      const objectType = classMap.get(st.object.value);
+      if (objectType && (objectType === 'class' || objectType === 'ontology' || objectType === 'objectproperty')) {
+        return;
+      }
+
       if (st.subject.termType !== "NamedNode" || st.predicate.termType !== "NamedNode" || st.object.termType !== "NamedNode") return;
 
       const subj = st.subject.value;
