@@ -199,19 +199,16 @@ define(function (require, exports, module) {
     return `<style>
         .kg-root{
           width:100%; height:100%;
-          display:grid;
-          grid-template-columns: auto 1fr 360px;
-          grid-template-areas: "templates canvas sparql";
-          background:${COLORS.surface}; overflow:hidden; position:relative;
+          display:flex; flex-direction:column;
+          background:${COLORS.surface}; overflow:hidden;
           font-family: "Inter", "Segoe UI", Arial, sans-serif;
         }
 
         /* Header with title and info button */
         .kg-header{
-          position:absolute; top:10px; left:16px;
-          max-width:calc(100% - 400px);
-          z-index:10;
           display:flex; flex-direction:column; gap:12px;
+          padding:10px 16px; border-bottom:1px solid ${COLORS.borderLight};
+          flex-shrink:0; background:${COLORS.surface};
         }
         .kg-header-top{
           display:flex; align-items:center; gap:8px;
@@ -222,6 +219,15 @@ define(function (require, exports, module) {
         .kg-header-download{
           display:flex; align-items:center;
         }
+
+        /* Main content area with grid layout */
+        .kg-main{
+          display:grid;
+          grid-template-columns: auto 1fr 360px;
+          grid-template-areas: "templates canvas sparql";
+          flex:1; overflow:hidden;
+        }
+
         .kg-action-btn{
           display:inline-flex; align-items:center; justify-content:center;
           padding:5px 10px; border-radius:4px;
@@ -674,6 +680,8 @@ define(function (require, exports, module) {
           </div>
         </div>
 
+        <!-- Main content area (templates, canvas, sparql) -->
+        <div class="kg-main">
         <!-- Templates panel -->
         <aside class="kg-templates-panel" id="${viewerId}-templates-panel">
           <div class="kg-templates-header">
@@ -740,6 +748,7 @@ define(function (require, exports, module) {
             </div>
           </div>
         </aside>
+        </div>
       </div>`;
   }
 
