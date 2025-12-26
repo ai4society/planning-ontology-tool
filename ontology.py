@@ -428,7 +428,7 @@ class OntologyBuilder:
 
         # Add plan cost (number of actions)
         from rdflib.namespace import XSD
-        self.g.add((plan_URI, self.planOntology.hasPlanCost, step_count))
+        self.g.add((plan_URI, self.planOntology.hasPlanCost, Literal(step_count, datatype=XSD.nonNegativeInteger)))
 
         # Create a formatted string for the entire plan (for display in popup)
         plan_text = ""
@@ -457,7 +457,7 @@ class OntologyBuilder:
             self.g.add((step_URI, RDF.type, self.planOntology.plan_step))
             # Label is just the action string, step number is separate data property
             self.g.add((step_URI, RDFS.label, Literal(action)))
-            self.g.add((step_URI, self.planOntology.hasStepNumber, i))
+            self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.Integer)))
             self.g.add((plan_URI, self.planOntology.hasPlanStep, step_URI))
 
 def find_parens(s):
