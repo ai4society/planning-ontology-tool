@@ -457,7 +457,7 @@ class OntologyBuilder:
             self.g.add((step_URI, RDF.type, self.planOntology.plan_step))
             # Label is just the action string, step number is separate data property
             self.g.add((step_URI, RDFS.label, Literal(action)))
-            self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.nonNegativeInteger)))
+            self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.Integer)))
             self.g.add((plan_URI, self.planOntology.hasPlanStep, step_URI))
 
 def find_parens(s):
