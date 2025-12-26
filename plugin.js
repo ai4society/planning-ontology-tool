@@ -1686,6 +1686,7 @@ define(function (require, exports, module) {
       // if they are not the domain itself.
       // (This is a heuristic: we prefer to see the Plan/Problem/Domain instances)
       // Check if the object is an ontology meta-class
+      const objectType = classMap.get(st.object.value);
       if (objectType && (objectType === 'class' || objectType === 'ontology' || objectType === 'objectproperty' || objectType === 'datatypeproperty')) {
         return;
       }
