@@ -33,11 +33,12 @@ class PDDLParser:
         name = self.df.get_domain_name(self.domain_text).strip()
 
         self.data.setdefault(name, {})
-        self.data[name]["requirements"] = self.df.get_requirements(self.domain_text) if '(:requirements' in self.domain_text else []
-        self.data[name]["types"] = self.df.get_types(self.domain_text) if '(:types' in self.domain_text else {}
-        self.data[name]["constants"] = self.df.get_constants(self.domain_text) if '(:constants' in self.domain_text else {}
-        self.data[name]["predicates"] = self.df.get_predicates(self.domain_text) if '(:predicates' in self.domain_text else []
-        self.data[name]["actions"] = self.df.get_actions(self.domain_text) if '(:action' in self.domain_text else {}
+        text_lower = self.domain_text.lower()
+        self.data[name]["requirements"] = self.df.get_requirements(self.domain_text) if '(:requirements' in text_lower else []
+        self.data[name]["types"] = self.df.get_types(self.domain_text) if '(:types' in text_lower else {}
+        self.data[name]["constants"] = self.df.get_constants(self.domain_text) if '(:constants' in text_lower else {}
+        self.data[name]["predicates"] = self.df.get_predicates(self.domain_text) if '(:predicates' in text_lower else []
+        self.data[name]["actions"] = self.df.get_actions(self.domain_text) if '(:action' in text_lower else {}
 
         self.domain_name = name
 
@@ -46,9 +47,10 @@ class PDDLParser:
         problem_name = problem_name.strip()
         self.problem_name = problem_name
 
-        objects = self.pf.get_objects(self.problem_text) if '(:objects' in self.problem_text else []
-        init = self.pf.get_initial_state(self.problem_text) if '(:init' in self.problem_text else {}
-        goal = self.pf.get_goal_state(self.problem_text) if '(:goal' in self.problem_text else []
+        text_lower = self.problem_text.lower()
+        objects = self.pf.get_objects(self.problem_text) if '(:objects' in text_lower else []
+        init = self.pf.get_initial_state(self.problem_text) if '(:init' in text_lower else {}
+        goal = self.pf.get_goal_state(self.problem_text) if '(:goal' in text_lower else []
 
         self.data[self.domain_name].setdefault("Problems", {})
         self.data[self.domain_name]["Problems"][problem_name] = {
@@ -520,7 +522,7 @@ class DomainFunctions():
             Returns:
                 list: List of requirement strings
         """
-        requirement_index = text.index('(:requirements')
+        requirement_index = text.lower().index('(:requirements')
         present_text = text[requirement_index:requirement_index + find_parens(text[requirement_index:])[0]]
         # Split and return all requirements (skip the first element which is "(:requirements")
         return present_text.split()[1:]
@@ -535,7 +537,7 @@ class DomainFunctions():
             Returns:
                 dict or list: Type hierarchy (if typed) or simple type list
         """
-        predicate_index = text.index('(:types')
+        predicate_index = text.lower().index('(:types')
         predicate_closing_ind = find_parens(text[predicate_index:])[0]
 
         # Extract the content between (:types and closing parenthesis
@@ -581,7 +583,7 @@ class DomainFunctions():
             Returns:
                 dict or list: Constants grouped by type (if typed) or simple constant list
         """
-        predicate_index = text.index('(:constants')
+        predicate_index = text.lower().index('(:constants')
         predicate_closing_ind = find_parens(text[predicate_index:])[0]
 
         file_data = text[predicate_index+8: predicate_index + predicate_closing_ind]
@@ -625,7 +627,7 @@ class DomainFunctions():
             Returns:
                 list: List of predicate definitions as strings
         """
-        predicate_index = text.index('(:predicates')
+        predicate_index = text.lower().index('(:predicates')
         predicate_closing_ind = find_parens(text[predicate_index:])[0]
 
         # Extract the entire predicates section
@@ -651,7 +653,13 @@ class DomainFunctions():
             Returns:
                 dict: Parameter information with values and types
         """
-        params_index = data.index(':parameters')    
+        # Find index case-insensitively
+        try:
+            params_index = data.lower().index(':parameters')
+        except ValueError:
+             # Some domains might have empty parameters or weird formatting, but usually required for action definition
+            return {"parameters": {"values": [], "types": []}}
+
         index_dict = find_parens(data[params_index:])
         data = data[params_index:]
 
@@ -694,14 +702,17 @@ class DomainFunctions():
             Returns:
                 list: List of precondition expressions
         """
+        try:
+            index = data.lower().index(':precondition')
+        except ValueError:
+            return []
 
-        index = data.index(':precondition')    
         index_dict = find_parens(data[index:])
         data = data[index:]
 
         ind_list = sorted(list(index_dict.keys()))
 
-        if "and" in data[ind_list[0]:ind_list[0]+4]:
+        if "and" in data[ind_list[0]:ind_list[0]+4].lower():
             ind_list = ind_list[1:]
             
         preconditions = []
@@ -723,13 +734,17 @@ class DomainFunctions():
             Returns:
                 list: List of effect expressions
         """
-        index = data.index(':effect')    
+        try:
+            index = data.lower().index(':effect')
+        except ValueError:
+            return []
+
         index_dict = find_parens(data[index:])
         data = data[index:]
 
         ind_list = sorted(list(index_dict.keys()))[1:]
 
-        if "and" in data[ind_list[0]:ind_list[0]+4]:
+        if "and" in data[ind_list[0]:ind_list[0]+4].lower():
             ind_list = ind_list[1:]
 
         effect = []
@@ -752,7 +767,8 @@ class DomainFunctions():
                 dict: Mapping action_name -> {parameters, preconditions, effect}
         """
         return_dict = {}
-        list_of_action_index = [m.start() for m in re.finditer(r'\(:action', text)]
+        # Case insensitive regex for actions
+        list_of_action_index = [m.start() for m in re.finditer(r'\(:action', text, re.IGNORECASE)]
 
         for action_index in list_of_action_index:
             action_closing_ind = find_parens(text[action_index:])[0]
@@ -809,7 +825,7 @@ class ProblemFunctions():
             Returns:
                 dict or list: Objects grouped by type (if typed) or simple object list
         """
-        start_index = text.index('(:objects')
+        start_index = text.lower().index('(:objects')
         closing_ind = find_parens(text[start_index:])[0]
         objects_text = text[start_index+10: start_index + closing_ind]
         instances_list = [item for item in objects_text.split(' ') if item]
@@ -859,7 +875,7 @@ class ProblemFunctions():
             Returns:
                 list: List of initial state expressions
         """
-        start_index = text.index('(:init')
+        start_index = text.lower().index('(:init')
         closing_idx = find_parens(text[start_index:])[0]
         block_text = text[start_index: start_index + closing_idx + 1]
 
@@ -867,7 +883,7 @@ class ProblemFunctions():
         index_dict = find_parens(block_text)
         ind_list = sorted(list(index_dict.keys()))[1:]
 
-        if "and" in block_text[ind_list[0]:ind_list[0]+4]:
+        if "and" in block_text[ind_list[0]:ind_list[0]+4].lower():
             ind_list = ind_list[1:]
 
         states = []
@@ -889,7 +905,7 @@ class ProblemFunctions():
             Returns:
                 list: List of goal state expressions
         """
-        start_index = text.index('(:goal')
+        start_index = text.lower().index('(:goal')
         closing_idx = find_parens(text[start_index:])[0]
         block_text = text[start_index: start_index + closing_idx + 1]
 

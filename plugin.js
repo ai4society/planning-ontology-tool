@@ -719,7 +719,7 @@ define(function (require, exports, module) {
               ?action rdfs:label ?actionLabel .
               ?action plan:hasPrecondition ?prec .
               ?prec rdfs:label ?preconditionLabel .
-            }`),
+            } ORDER BY ?actionLabel`),
         defaultOpen: false
       },
       {
@@ -735,7 +735,7 @@ define(function (require, exports, module) {
               ?action rdfs:label ?actionLabel .
               ?action plan:hasEffect ?eff .
               ?eff rdfs:label ?effectLabel .
-            }`),
+            } ORDER BY ?actionLabel`),
         defaultOpen: false
       },
       {
@@ -1594,9 +1594,20 @@ define(function (require, exports, module) {
           return;
         }
 
-        // Get the value after "#"
-        const formatValue = value => {
-          return value.includes("#") ? value.split("#").pop() : value;
+        // Helper to format RDF terms for display
+        const formatValue = term => {
+          if (!term) return "";
+          // If it's an object with a .value property (Comunica/RDFJS term)
+          if (typeof term === 'object' && term.value) {
+            // For URIs, show short form
+            if (term.termType === 'NamedNode') {
+              return term.value.split(/[#\/]/).pop();
+            }
+            // For Literals, just return the value (hides datatype)
+            return term.value;
+          }
+          // Fallback for simple strings (though Comunica usually returns objects)
+          return String(term).split(/[#\/]/).pop();
         };
 
         const cols = Array.from(new Set(rows.flatMap(row => Object.keys(row))));
