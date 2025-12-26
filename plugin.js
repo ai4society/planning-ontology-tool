@@ -523,36 +523,36 @@ define(function (require, exports, module) {
           word-break:break-word; max-width:300px;
         }
         .sparql-output .kg-grid td.text-long{
-          max-width:400px; white-space:pre-wrap;
-          line-height:1.5; cursor:pointer; position:relative;
+          max-width:300px; white-space:nowrap; overflow:hidden;
+          text-overflow:ellipsis; cursor:pointer; color:${COLORS.accentBlue};
+          font-weight:500;
         }
-        .sparql-output .kg-grid td.text-long::after{
-          content:''; display:inline-block; width:100%; background:linear-gradient(to right, transparent 90%, ${COLORS.surface});
-        }
-        .sparql-output .kg-grid td.text-expandable{
-          background:${COLORS.background}; padding:12px;
-        }
-        .sparql-output .kg-grid td.text-expandable summary{
-          cursor:pointer; font-weight:500; color:${COLORS.primary}; padding:8px 0;
-          user-select:none;
-        }
-        .sparql-output .kg-grid td.text-expandable summary:hover{
+        .sparql-output .kg-grid td.text-long:hover{
           text-decoration:underline;
-        }
-        .sparql-output .kg-grid td.text-expandable p{
-          margin:8px 0 0 0; padding:8px; background:${COLORS.surface};
-          border-left:3px solid ${COLORS.primary}; border-radius:4px;
-          white-space:pre-wrap; word-wrap:break-word; line-height:1.5;
-          max-height:300px; overflow-y:auto;
         }
         .sparql-output .kg-grid tbody tr:hover{ background:${COLORS.hover}; }
         .sparql-output .kg-grid tbody tr:nth-child(even){ background:${COLORS.background}; }
         .sparql-output .kg-grid tbody tr:nth-child(even):hover{ background:${COLORS.hover}; }
-        .sparql-output .kg-grid tbody tr[data-expanded] td.text-expandable summary::before{
-          content:'▼ '; color:${COLORS.primary};
+
+        /* Text detail view area below table */
+        .sparql-detail-view{
+          margin-top:16px; padding:12px;
+          background:${COLORS.background}; border:1px solid ${COLORS.border};
+          border-radius:8px; display:none;
         }
-        .sparql-output .kg-grid tbody tr:not([data-expanded]) td.text-expandable summary::before{
-          content:'▶ '; color:${COLORS.primary};
+        .sparql-detail-view.active{
+          display:block;
+        }
+        .sparql-detail-header{
+          font-size:12px; font-weight:600; color:${COLORS.textMuted};
+          margin-bottom:8px; text-transform:uppercase;
+        }
+        .sparql-detail-content{
+          white-space:pre-wrap; word-wrap:break-word; line-height:1.6;
+          color:${COLORS.textPrimary}; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-size:13px; max-height:250px; overflow-y:auto;
+          background:${COLORS.surface}; border-left:3px solid ${COLORS.primary};
+          padding:12px; border-radius:4px;
         }
 
         /* Node popup for clicked nodes */
@@ -743,6 +743,11 @@ define(function (require, exports, module) {
           <div class="sparql-output-container">
             <div class="sparql-output" id="${viewerId}-sparql-output">
               <span class="sparql-output-empty">Results will appear here...</span>
+            </div>
+            <!-- Detail view for long text content -->
+            <div class="sparql-detail-view" id="${viewerId}-sparql-detail-view">
+              <div class="sparql-detail-header" id="${viewerId}-sparql-detail-header">Details</div>
+              <div class="sparql-detail-content" id="${viewerId}-sparql-detail-content"></div>
             </div>
           </div>
         </aside>
@@ -1826,20 +1831,21 @@ define(function (require, exports, module) {
         html += cols.map(key => `<th>${key.charAt(0).toUpperCase() + key.slice(1)}</th>`).join("");
         html += "</tr></thead><tbody>";
 
-        rows.forEach(row => {
+        rows.forEach((row, rowIdx) => {
           html += "<tr>";
-          html += cols.map(key => {
+          html += cols.map((key, colIdx) => {
             const value = formatValue(row[key]);
             const valueStr = String(value || '');
             // Detect if content is long (more than 80 characters) or contains newlines
             const isLongText = valueStr.length > 80 || valueStr.includes('\n');
 
             if (isLongText) {
-              // Create expandable section for long text
-              const summary = valueStr.substring(0, 77) + (valueStr.length > 77 ? '...' : '');
-              return `<td class='text-expandable'><summary>${summary}</summary><p style='display:none;'>${valueStr.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p></td>`;
+              // Show truncated text with ellipsis, store full text in data attribute
+              const truncated = valueStr.substring(0, 77) + '...';
+              const cellId = `cell-${rowIdx}-${colIdx}`;
+              return `<td class='text-long' id='${cellId}' data-full-text='${valueStr.replace(/'/g, "&apos;").replace(/</g, '&lt;').replace(/>/g, '&gt;')}' data-label='${key}'>${truncated}</td>`;
             } else {
-              return `<td>${value}</td>`;
+              return `<td>${valueStr}</td>`;
             }
           }).join("");
           html += "</tr>";
@@ -1848,23 +1854,24 @@ define(function (require, exports, module) {
         html += "</tbody></table>";
         outputEl.innerHTML = html;
 
-        // Add toggle functionality for expandable text
-        document.querySelectorAll('.sparql-output .kg-grid td.text-expandable summary').forEach(summary => {
-          summary.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const td = summary.parentElement;
-            const row = td.closest('tr');
-            const p = td.querySelector('p');
-            const isExpanded = row.hasAttribute('data-expanded');
+        // Add click handlers for long text cells to show in detail view
+        const detailView = document.getElementById(`${viewerId}-sparql-detail-view`);
+        const detailHeader = document.getElementById(`${viewerId}-sparql-detail-header`);
+        const detailContent = document.getElementById(`${viewerId}-sparql-detail-content`);
 
-            if (isExpanded) {
-              p.style.display = 'none';
-              row.removeAttribute('data-expanded');
-            } else {
-              p.style.display = 'block';
-              row.setAttribute('data-expanded', 'true');
-            }
+        document.querySelectorAll('.sparql-output .kg-grid td.text-long').forEach(cell => {
+          cell.addEventListener('click', () => {
+            const fullText = cell.getAttribute('data-full-text');
+            const label = cell.getAttribute('data-label');
+
+            // Update detail header
+            detailHeader.textContent = `${label}:`;
+
+            // Update detail content
+            detailContent.textContent = fullText;
+
+            // Show detail view
+            detailView.classList.add('active');
           });
         });
       })
