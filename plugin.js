@@ -1855,25 +1855,30 @@ define(function (require, exports, module) {
         outputEl.innerHTML = html;
 
         // Add click handlers for long text cells to show in detail view
-        const detailView = document.getElementById(`${viewerId}-sparql-detail-view`);
-        const detailHeader = document.getElementById(`${viewerId}-sparql-detail-header`);
-        const detailContent = document.getElementById(`${viewerId}-sparql-detail-content`);
+        // Find detail view elements relative to outputEl instead of using viewerId
+        const container = outputEl.closest('.sparql-output-container');
+        if (container) {
+          const detailView = container.querySelector('.sparql-detail-view');
+          const detailHeader = container.querySelector('.sparql-detail-header');
+          const detailContent = container.querySelector('.sparql-detail-content');
 
-        document.querySelectorAll('.sparql-output .kg-grid td.text-long').forEach(cell => {
-          cell.addEventListener('click', () => {
-            const fullText = cell.getAttribute('data-full-text');
-            const label = cell.getAttribute('data-label');
+          // Add click handlers to long text cells in this specific output
+          outputEl.querySelectorAll('.kg-grid td.text-long').forEach(cell => {
+            cell.addEventListener('click', () => {
+              const fullText = cell.getAttribute('data-full-text');
+              const label = cell.getAttribute('data-label');
 
-            // Update detail header
-            detailHeader.textContent = `${label}:`;
+              // Update detail header
+              detailHeader.textContent = `${label}:`;
 
-            // Update detail content
-            detailContent.textContent = fullText;
+              // Update detail content
+              detailContent.textContent = fullText;
 
-            // Show detail view
-            detailView.classList.add('active');
+              // Show detail view
+              detailView.classList.add('active');
+            });
           });
-        });
+        }
       })
       .catch(err => {
         clearTimeout(timeout);
