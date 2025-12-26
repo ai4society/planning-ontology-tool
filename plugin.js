@@ -332,18 +332,22 @@
         .kg-template-header{
           width:100%; padding:12px 14px; background:${COLORS.surface};
           border:none; border-bottom:1px solid transparent;
-          cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+          cursor:pointer; display:flex; justify-content:space-between; align-items:flex-start;
           text-align:left; transition:all 0.2s ease;
         }
         .kg-query-template.is-open .kg-template-header{ border-bottom-color:${COLORS.borderLight}; }
         .kg-template-header:hover{ background:${COLORS.hover}; }
-        .kg-template-header-content{ flex:1; }
+        .kg-template-header-content{
+          flex:1; min-width:0;
+          display:flex; flex-direction:column; gap:2px;
+        }
         .kg-template-title{
           font-size:13px; font-weight:600; color:${COLORS.textPrimary};
           display:block; margin-bottom:2px;
         }
         .kg-template-description{
           font-size:11px; color:${COLORS.textSecondary}; display:block;
+          line-height:1.4; word-break:break-word; white-space:normal;
         }
         .kg-template-chevron{
           color:${COLORS.textMuted}; transition:transform 0.2s ease;
