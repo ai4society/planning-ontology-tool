@@ -302,7 +302,7 @@
           width:300px; min-width:280px; max-width:50vw; height:100%;
           background:${COLORS.background}; border-right:1px solid ${COLORS.border};
           display:flex; flex-direction:column; overflow:hidden; resize:horizontal;
-          padding-top:70px; /* Leave room for main header */
+          padding-top:50px; /* Leave room for main header */
         }
         .kg-templates-header{
           padding:10px 16px; border-bottom:1px solid ${COLORS.border};
@@ -531,10 +531,6 @@
             <h1 class="kg-title">Planning Ontology</h1>
             <button class="kg-info-btn" id="${viewerId}-info-btn" aria-label="About Planning Ontology" title="About Planning Ontology">i</button>
           </div>
-          <p class="kg-description">
-            An <em>ontology</em> to represent and exploit <em>planning knowledge</em>.
-            Click <span class="kg-link" id="${viewerId}-info-link">info</span> for resources, citation & details.
-          </p>
         </div>
 
         <!-- Info Popup Modal -->
