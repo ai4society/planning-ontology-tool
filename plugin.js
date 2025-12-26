@@ -727,9 +727,9 @@ define(function (require, exports, module) {
             PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
             SELECT ?action ?label WHERE {
-              ?action rdf:type plan:Action .
+              ?action rdf:type plan:action .
               ?action rdfs:label ?label .
-            }`),
+            } ORDER BY ?label`),
         defaultOpen: true
       },
       {
@@ -741,7 +741,7 @@ define(function (require, exports, module) {
             PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
             SELECT ?actionLabel ?preconditionLabel WHERE {
-              ?action rdf:type plan:Action .
+              ?action rdf:type plan:action .
               ?action rdfs:label ?actionLabel .
               ?action plan:hasPrecondition ?prec .
               ?prec rdfs:label ?preconditionLabel .
@@ -757,7 +757,7 @@ define(function (require, exports, module) {
             PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
             SELECT ?actionLabel ?effectLabel WHERE {
-              ?action rdf:type plan:Action .
+              ?action rdf:type plan:action .
               ?action rdfs:label ?actionLabel .
               ?action plan:hasEffect ?eff .
               ?eff rdfs:label ?effectLabel .
