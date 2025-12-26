@@ -8,14 +8,16 @@ class PDDLParser:
         Main parser class that processes PDDL files and extracts structured data from domain and problem definitions.
     """
 
-    def __init__(self, domain_text: str, problem_text: str):
+    def __init__(self, domain_text: str, problem_text: str, plan_text: str = ""):
         """
             Args:
                 domain_text: Raw PDDL domain file content.
                 problem_text: Raw PDDL problem file content.
+                plan_text: Optional raw plan file content.
         """
         self.domain_text = self._remove_pddl_comments(domain_text)
         self.problem_text = self._remove_pddl_comments(problem_text)
+        self.plan_text = self._remove_pddl_comments(plan_text) if plan_text else ""
         self.data = {}
         self.df = DomainFunctions()
         self.pf = ProblemFunctions()
@@ -23,6 +25,8 @@ class PDDLParser:
     def run(self) -> dict:
         self._parse_domain()
         self._parse_problem()
+        if self.plan_text:
+            self._parse_plan()
         return self.data
 
     def _parse_domain(self):
@@ -40,7 +44,8 @@ class PDDLParser:
     def _parse_problem(self):
         problem_name, _ = self.pf.get_problem_name(self.problem_text)
         problem_name = problem_name.strip()
-        
+        self.problem_name = problem_name
+
         objects = self.pf.get_objects(self.problem_text) if '(:objects' in self.problem_text else []
         init = self.pf.get_initial_state(self.problem_text) if '(:init' in self.problem_text else {}
         goal = self.pf.get_goal_state(self.problem_text) if '(:goal' in self.problem_text else []
@@ -51,6 +56,25 @@ class PDDLParser:
             "init": init,
             "goal": goal
         }
+
+    def _parse_plan(self):
+        """
+            Parse a plan file and extract the sequence of actions.
+            Plan files contain lines like: (action-name param1 param2 ...)
+        """
+        plan_actions = []
+        for line in self.plan_text.splitlines():
+            line = line.strip()
+            # Skip empty lines and comments
+            if not line or line.startswith(';'):
+                continue
+            # Match action lines: (action-name ...)
+            if line.startswith('(') and line.endswith(')'):
+                plan_actions.append(line)
+
+        if plan_actions and hasattr(self, 'problem_name'):
+            # Add plan to the problem data
+            self.data[self.domain_name]["Problems"][self.problem_name]["plan"] = plan_actions
 
     def _remove_pddl_comments(self, text: str) -> str:
         """
@@ -293,7 +317,7 @@ class OntologyBuilder:
             self.g.add((problem_URI, RDFS.label, Literal(problem_name)))
             self.g.add((itemURI, property_name, problem_URI))
 
-            # Add problem components (objects, initial state, goal state)
+            # Add problem components (objects, initial state, goal state, plan)
             for key, value in items.items():
                 if key == "objects":
                     self.add_objects(self.planOntology.object, self.planOntology.hasObject, problem_URI, itemURI.split('#')[-1], value)
@@ -301,6 +325,8 @@ class OntologyBuilder:
                     self.add_initial_state(self.planOntology.initial_state, self.planOntology.hasInitialState, problem_URI, value)
                 elif key == "goal":
                     self.add_goal_state(self.planOntology.goal_state, self.planOntology.hasGoalState, problem_URI, value)
+                elif key == "plan":
+                    self.add_plan(problem_URI, problem_name, value)
 
     def add_objects(self, class_name, property_name, itemURI, domain_name, data):
         """
@@ -349,6 +375,38 @@ class OntologyBuilder:
             self.g.add((uri, RDF.type, class_name))
             self.g.add((uri, RDFS.label, Literal(value)))
             self.g.add((itemURI, property_name, uri))
+
+    def add_plan(self, problem_URI, problem_name, plan_actions):
+        """
+            Add a plan and its actions to the ontology.
+
+            Args:
+                problem_URI: URI of the planning problem
+                problem_name: Name of the problem
+                plan_actions: List of plan action strings (e.g., "(move robot1 loc1 loc2)")
+        """
+        # Use DUL Plan class as referenced in the ontology
+        DUL = Namespace('http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#')
+
+        # Create Plan instance
+        plan_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + '_plan')
+        self.g.add((plan_URI, RDF.type, DUL.Plan))
+        self.g.add((plan_URI, RDFS.label, Literal(f"Plan for {problem_name}")))
+
+        # Link problem to plan using hasPlan property
+        self.g.add((problem_URI, self.planOntology.hasPlan, plan_URI))
+
+        # Add plan cost (number of actions)
+        from rdflib.namespace import XSD
+        self.g.add((plan_URI, self.planOntology.hasPlanCost, Literal(len(plan_actions), datatype=XSD.nonNegativeInteger)))
+
+        # Add each plan step as a plan action
+        for i, action in enumerate(plan_actions, 1):
+            step_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + f'_plan_step_{i}')
+            self.g.add((step_URI, RDF.type, self.planOntology.plan_step))
+            self.g.add((step_URI, RDFS.label, Literal(action)))
+            self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.nonNegativeInteger)))
+            self.g.add((plan_URI, self.planOntology.hasPlanStep, step_URI))
 
 def find_parens(s):
     """
@@ -802,12 +860,12 @@ class ProblemFunctions():
 
         return states
 
-def create_ontology(domain_text, problem_text):
+def create_ontology(domain_text, problem_text, plan_text=""):
     """
-        Create an ontology from PDDL domain and problem definitions.
+        Create an ontology from PDDL domain, problem, and optional plan definitions.
 
         Steps:
-        1. Parse domain and problem using PDDLParser.
+        1. Parse domain, problem, and plan using PDDLParser.
         2. Download the AI4S Planning Ontology OWL file (required by plugin).
         3. Load ontology into RDF graph.
         4. Build and serialize ontology from parsed PDDL data.
@@ -815,11 +873,12 @@ def create_ontology(domain_text, problem_text):
         Args:
             domain_text (str): Raw PDDL domain file content.
             problem_text (str): Raw PDDL problem file content.
+            plan_text (str): Optional raw plan file content.
 
         Returns:
             str: Serialized RDF/XML representation of the ontology
     """
-    parser = PDDLParser(domain_text, problem_text)
+    parser = PDDLParser(domain_text, problem_text, plan_text)
     json_data = parser.run()
 
     OWL_URL = "https://raw.githubusercontent.com/BharathMuppasani/AI-Planning-Ontology/main/models/plan-ontology-rdf-ESWC.owl"

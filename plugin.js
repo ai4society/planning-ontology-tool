@@ -98,6 +98,14 @@
                 <select id="problemSelect" class="form-control file-selection"></select>
               </div>
             </div>
+            <div class="form-group">
+              <label class="col-sm-4 control-label">Plan file <small style="color:#999">(optional)</small></label>
+              <div class="col-sm-6">
+                <select id="planSelect" class="form-control file-selection">
+                  <option value="">-- No plan --</option>
+                </select>
+              </div>
+            </div>
           </form>
         </div>
 
@@ -150,15 +158,16 @@
 
   /**
    * High-level helper: make sure the Python module/function is present and then call it.
-   * It expects the Python side expose a function that takes (domainText, problemText)
+   * It expects the Python side expose a function that takes (domainText, problemText, planText)
    * and returns an ontology string (RDF/XML).
    * @param {string} domainText - PDDL domain text.
    * @param {string} problemText - PDDL problem text.
+   * @param {string} planText - Optional plan text.
    * @returns {Promise<any>} - Ontology string (RDF/XML).
  */
-  async function createOntologyWithPython(domainText, problemText) {
+  async function createOntologyWithPython(domainText, problemText, planText = "") {
     await loadPyModuleFromURL(PY_MODULE_URL, PY_MODULE_NAME);
-    
+
     let pythonFunction;
     try {
      pythonFunction = await pyRun(`
@@ -171,7 +180,7 @@
     }
 
     // Call the Python function directly from JS
-    return pythonFunction(domainText, problemText);
+    return pythonFunction(domainText, problemText, planText);
   }
 
   define(function(require, exports, module) {
@@ -1130,11 +1139,11 @@
     }
 
     /**
-     * Populate domain/problem dropdowns by scanning open PDDL editors.
-     * Uses a simple regex to detect "(domain" vs "(problem)" in the content.
+     * Populate domain/problem/plan dropdowns by scanning open PDDL editors.
+     * Uses regex to detect "(domain", "(problem", or plan files (actions starting with "(").
    */
     function fileChooser() {
-      var domainOpts = "", problemOpts = "";
+      var domainOpts = "", problemOpts = "", planOpts = "";
 
       window.pddl_files.forEach(function(fileName) {
         if (window.closed_editors.includes(fileName))
@@ -1144,21 +1153,54 @@
         // Get the text from the file
         var txt = ace.edit(fileName).getSession().getValue();
         var opt = `<option value="${fileName}">${label}</option>\n`;
-        
-        // Check if the file is a domain or problem
+
+        // Check if the file is a domain, problem, or plan
         if (/\(domain/i.test(txt))
           domainOpts += opt;
         else if (/\(problem/i.test(txt))
           problemOpts += opt;
+        else if (isPlanFile(txt))
+          planOpts += opt;
       });
 
       $('#domainSelect').html(domainOpts);
       $('#problemSelect').html(problemOpts);
+      $('#planSelect').html('<option value="">-- No plan --</option>\n' + planOpts);
       $('#chooseFiles').modal('toggle');
     }
 
     /**
-     * Handler after user selects domain/problem files.
+     * Check if a file content looks like a plan file.
+     * Plan files contain lines starting with "(" followed by an action name.
+     * @param {string} txt - File content
+     * @returns {boolean} - True if it looks like a plan file
+   */
+    function isPlanFile(txt) {
+      // Remove comments (lines starting with ;)
+      var lines = txt.split('\n').filter(line => {
+        var trimmed = line.trim();
+        return trimmed && !trimmed.startsWith(';');
+      });
+
+      if (lines.length === 0) return false;
+
+      // Check if most non-empty lines start with "(" and look like actions
+      // Plan actions typically look like: (action-name param1 param2 ...)
+      var actionLineCount = 0;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        // Plan action lines start with ( and contain action name
+        if (/^\([a-zA-Z][\w\-]*/.test(line)) {
+          actionLineCount++;
+        }
+      }
+
+      // If at least 50% of non-empty lines look like action calls, it's likely a plan
+      return actionLineCount > 0 && (actionLineCount / lines.length) >= 0.5;
+    }
+
+    /**
+     * Handler after user selects domain/problem/plan files.
      * Reads buffers from ACE, calls the Python converter, opens a KG tab with the result.
    */
     async function onFilesChosen() {
@@ -1168,7 +1210,14 @@
       var domainText  = ace.edit($('#domainSelect').val()).getSession().getValue();
       var problemText = ace.edit($('#problemSelect').val()).getSession().getValue();
 
-      const ontologyJson = await createOntologyWithPython(domainText, problemText);
+      // Get plan text if a plan file is selected (optional)
+      var planText = "";
+      var planSelectVal = $('#planSelect').val();
+      if (planSelectVal) {
+        planText = ace.edit(planSelectVal).getSession().getValue();
+      }
+
+      const ontologyJson = await createOntologyWithPython(domainText, problemText, planText);
       createKnowledgeGraphTab(ontologyJson);
     }
 
