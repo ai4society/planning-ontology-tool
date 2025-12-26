@@ -12,7 +12,12 @@ const RDF_IGNORE_PREDICATES = [
   "http://www.w3.org/2000/01/rdf-schema#subClassOf",
   "http://www.w3.org/2000/01/rdf-schema#comment",
   "http://www.w3.org/2002/07/owl#inverseOf",
-  "http://www.w3.org/2002/07/owl#versionIRI"
+  "http://www.w3.org/2002/07/owl#versionIRI",
+  "http://www.w3.org/2000/01/rdf-schema#domain",
+  "http://www.w3.org/2000/01/rdf-schema#range",
+  "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+  "http://www.w3.org/2002/07/owl#disjointWith",
+  "http://www.w3.org/2002/07/owl#equivalentClass"
 ];
 
 // UI Color Theme - Brick red primary with muted accents
@@ -1681,8 +1686,13 @@ define(function (require, exports, module) {
       // if they are not the domain itself.
       // (This is a heuristic: we prefer to see the Plan/Problem/Domain instances)
       // Check if the object is an ontology meta-class
-      const objectType = classMap.get(st.object.value);
-      if (objectType && (objectType === 'class' || objectType === 'ontology' || objectType === 'objectproperty')) {
+      if (objectType && (objectType === 'class' || objectType === 'ontology' || objectType === 'objectproperty' || objectType === 'datatypeproperty')) {
+        return;
+      }
+
+      // Also check if subject is an ontology class/property definition
+      const subjectType = classMap.get(st.subject.value);
+      if (subjectType && (subjectType === 'class' || subjectType === 'ontology' || subjectType === 'objectproperty' || subjectType === 'datatypeproperty')) {
         return;
       }
 

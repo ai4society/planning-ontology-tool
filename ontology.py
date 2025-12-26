@@ -416,9 +416,9 @@ class OntologyBuilder:
         # Create Plan instance
         plan_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + '_plan')
         self.g.add((plan_URI, RDF.type, DUL.Plan))
-        plan_label = f"Plan for {problem_name}"
-        if plan_actions:
-            plan_label = f"{plan_label} ({len(plan_actions)} steps)"
+        
+        step_count = len(plan_actions)
+        plan_label = f"Plan for {problem_name} ({step_count} steps)"
         self.g.add((plan_URI, RDFS.label, Literal(plan_label)))
 
         # Link problem to plan using hasPlan property
@@ -426,28 +426,37 @@ class OntologyBuilder:
 
         # Add plan cost (number of actions)
         from rdflib.namespace import XSD
-        self.g.add((plan_URI, self.planOntology.hasPlanCost, Literal(len(plan_actions), datatype=XSD.nonNegativeInteger)))
+        self.g.add((plan_URI, self.planOntology.hasPlanCost, Literal(step_count, datatype=XSD.nonNegativeInteger)))
 
         # Create a formatted string for the entire plan (for display in popup)
         plan_text = ""
+        explanation_text = f"The plan consists of {step_count} steps: "
+        
         for i, action in enumerate(plan_actions, 1):
             plan_text += f"{i}. {action}\n"
+            explanation_text += f"{i}. {action}, "
         
+        # Remove trailing comma and space
+        if step_count > 0:
+            explanation_text = explanation_text[:-2] + "."
+        else:
+            explanation_text = "The plan contains no steps."
+
         # Add the formatted plan as a comment
         if plan_text:
             self.g.add((plan_URI, RDFS.comment, Literal(plan_text.strip())))
+            
+        # Add natural language explanation as hasPlanExplanation property
+        self.g.add((plan_URI, self.planOntology.hasPlanExplanation, Literal(explanation_text, datatype=XSD.string)))
 
         # Add each plan step as a plan action
         for i, action in enumerate(plan_actions, 1):
             step_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + f'_plan_step_{i}')
             self.g.add((step_URI, RDF.type, self.planOntology.plan_step))
-            self.g.add((step_URI, RDFS.label, Literal(f"Step {i}: {action}")))
+            # Label is just the action string, step number is separate data property
+            self.g.add((step_URI, RDFS.label, Literal(action)))
             self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.nonNegativeInteger)))
             self.g.add((plan_URI, self.planOntology.hasPlanStep, step_URI))
-            
-            # Temporary: Add dynamic properties hasStep_1, hasStep_2, etc. as requested
-            dynamic_step_prop = URIRef(self.planOntology + f"hasStep_{i}")
-            self.g.add((plan_URI, dynamic_step_prop, step_URI))
 
 def find_parens(s):
     """
