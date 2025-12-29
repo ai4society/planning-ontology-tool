@@ -1,5 +1,16 @@
 # Plugin for Planning.Domains
 
+## Overview
+
+This plugin transforms PDDL (Planning Domain Definition Language) domain, problem and plan files into RDF/OWL knowledge graphs, visualizes them using D3.js, and enables SPARQL querying. It integrates directly with the [Planning.Domains](https://editor.planning.domains) online PDDL editor, running entirely in your browser.
+
+**Learn more about the Planning Ontology:**
+- [Planning Ontology PURL](https://purl.archive.org/ai4s/ontology/planning)
+- [Planning Ontology Website](https://ai4society.github.io/planning-ontology/)
+- [Planning.Domains Editor](https://editor.planning.domains)
+
+---
+
 ### Installation
 
 The current plugin installation URL is:
@@ -71,6 +82,8 @@ https://github.com/AI-Planning?q=Plugin -->
 ## Citation
 
 If you use this plugin in your research, please cite the following paper:
+
+**Paper:** [Building a planning ontology to represent and exploit planning knowledge and its applications](https://link.springer.com/article/10.1007/s44248-025-00093-9) – Discover Data Journal, 2025
 
 ```bibtex
 @article{muppasani2025building,
