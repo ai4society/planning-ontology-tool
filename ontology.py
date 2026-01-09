@@ -452,12 +452,14 @@ class OntologyBuilder:
         self.g.add((plan_URI, self.planOntology.hasPlanExplanation, Literal(explanation_text, datatype=XSD.string)))
 
         # Add each plan step as a plan action
-        for i, action in enumerate(plan_actions, 1):
-            step_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + f'_plan_step_{i}')
+        # Step numbers are assigned sequentially starting from 1
+        for step_number, action in enumerate(plan_actions, 1):
+            step_URI = URIRef(self.planOntology + self.iri_safe(problem_name) + f'_plan_step_{step_number}')
             self.g.add((step_URI, RDF.type, self.planOntology.plan_step))
             # Label is just the action string, step number is separate data property
             self.g.add((step_URI, RDFS.label, Literal(action)))
-            self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(i, datatype=XSD.integer)))
+            # Use Literal without explicit datatype - rdflib auto-detects int
+            self.g.add((step_URI, self.planOntology.hasStepNumber, Literal(step_number)))
             self.g.add((plan_URI, self.planOntology.hasPlanStep, step_URI))
 
 def find_parens(s):

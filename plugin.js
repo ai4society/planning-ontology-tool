@@ -382,6 +382,17 @@ define(function (require, exports, module) {
         }
         .kg-templates-content{ flex:1; overflow:auto; padding:16px; }
 
+        /* Template section headers */
+        .kg-template-section{
+          margin-bottom:8px; margin-top:16px;
+        }
+        .kg-template-section:first-child{ margin-top:0; }
+        .kg-template-section-title{
+          font-size:11px; font-weight:700; color:${COLORS.primary};
+          text-transform:uppercase; letter-spacing:0.8px; margin:0;
+          padding-bottom:8px; border-bottom:2px solid ${COLORS.primary};
+        }
+
         /* Collapsible template cards */
         .kg-query-template{
           margin-bottom:12px; border:1px solid ${COLORS.border};
@@ -789,207 +800,225 @@ define(function (require, exports, module) {
   }
 
   /**
-   * Attach query templates to the side panel.
+   * Attach query templates to the side panel, grouped by category.
    * @param {string} viewerId
    */
   function attachQueryTemplates(viewerId) {
     const formatQuery = (q) => q.replace(/^\s+/gm, '').trim();
 
-    const templates = [
-      {
-        title: "All Actions",
-        description: "List all actions defined in the domain",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+    // Templates organized by category
+    const templateGroups = {
+      "Domain": [
+        {
+          title: "All Actions",
+          description: "List all actions defined in the domain",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?action ?label WHERE {
-              ?action rdf:type plan:action .
-              ?action rdfs:label ?label .
-            } ORDER BY ?label`),
-        defaultOpen: true
-      },
-      {
-        title: "Action Preconditions",
-        description: "Show preconditions for each action",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?action ?label WHERE {
+                ?action rdf:type plan:action .
+                ?action rdfs:label ?label .
+              } ORDER BY ?label`),
+          defaultOpen: true
+        },
+        {
+          title: "Action Preconditions",
+          description: "Show preconditions for each action",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?actionLabel ?preconditionLabel WHERE {
-              ?action rdf:type plan:action .
-              ?action rdfs:label ?actionLabel .
-              ?action plan:hasPrecondition ?prec .
-              ?prec rdfs:label ?preconditionLabel .
-            } ORDER BY ?actionLabel`),
-        defaultOpen: false
-      },
-      {
-        title: "Action Effects",
-        description: "Show effects for each action",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?actionLabel ?preconditionLabel WHERE {
+                ?action rdf:type plan:action .
+                ?action rdfs:label ?actionLabel .
+                ?action plan:hasPrecondition ?prec .
+                ?prec rdfs:label ?preconditionLabel .
+              } ORDER BY ?actionLabel`),
+          defaultOpen: false
+        },
+        {
+          title: "Action Effects",
+          description: "Show effects for each action",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?actionLabel ?effectLabel WHERE {
-              ?action rdf:type plan:action .
-              ?action rdfs:label ?actionLabel .
-              ?action plan:hasEffect ?eff .
-              ?eff rdfs:label ?effectLabel .
-            } ORDER BY ?actionLabel`),
-        defaultOpen: false
-      },
-      {
-        title: "Plan Steps",
-        description: "List the sequence of steps in the plan",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?actionLabel ?effectLabel WHERE {
+                ?action rdf:type plan:action .
+                ?action rdfs:label ?actionLabel .
+                ?action plan:hasEffect ?eff .
+                ?eff rdfs:label ?effectLabel .
+              } ORDER BY ?actionLabel`),
+          defaultOpen: false
+        },
+        {
+          title: "Action Parameters",
+          description: "Show parameters for each action with their types",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?stepNumber ?stepLabel WHERE {
-              ?plan rdf:type <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#Plan> .
-              ?plan plan:hasPlanStep ?step .
-              ?step plan:hasStepNumber ?stepNumber .
-              ?step rdfs:label ?stepLabel .
-            } ORDER BY ?stepNumber`),
-        defaultOpen: false
-      },
-      {
-        title: "Plan Explanation",
-        description: "Show plan cost and detailed explanation",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
-            PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
+              SELECT ?actionLabel ?paramLabel ?typeLabel WHERE {
+                ?action rdf:type plan:action .
+                ?action rdfs:label ?actionLabel .
+                ?action plan:hasParameter ?param .
+                ?param rdfs:label ?paramLabel .
+                ?param plan:ofType ?type .
+                ?type rdfs:label ?typeLabel .
+              } ORDER BY ?actionLabel ?paramLabel`),
+          defaultOpen: false
+        },
+        {
+          title: "Domain Predicates",
+          description: "List all predicates defined in the domain",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?planLabel ?cost ?explanation WHERE {
-              ?plan rdf:type dul:Plan .
-              ?plan rdfs:label ?planLabel .
-              ?plan plan:hasPlanCost ?cost .
-              OPTIONAL { ?plan plan:hasPlanExplanation ?explanation . }
-            }`),
-        defaultOpen: false
-      },
-      {
-        title: "Problem Objects",
-        description: "List all objects defined in the problem",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?domainLabel ?predicateLabel WHERE {
+                ?domain rdf:type plan:domain .
+                ?domain rdfs:label ?domainLabel .
+                ?domain plan:hasPredicate ?pred .
+                ?pred rdfs:label ?predicateLabel .
+              } ORDER BY ?domainLabel ?predicateLabel`),
+          defaultOpen: false
+        }
+      ],
+      "Problem": [
+        {
+          title: "Problem Objects",
+          description: "List all objects defined in the problem",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?problemLabel ?objectLabel WHERE {
-              ?problem rdf:type plan:problem .
-              ?problem rdfs:label ?problemLabel .
-              ?problem plan:hasObject ?obj .
-              ?obj rdfs:label ?objectLabel .
-            } ORDER BY ?problemLabel ?objectLabel`),
-        defaultOpen: false
-      },
-      {
-        title: "Initial State",
-        description: "Show initial state predicates",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?problemLabel ?objectLabel WHERE {
+                ?problem rdf:type plan:problem .
+                ?problem rdfs:label ?problemLabel .
+                ?problem plan:hasObject ?obj .
+                ?obj rdfs:label ?objectLabel .
+              } ORDER BY ?problemLabel ?objectLabel`),
+          defaultOpen: false
+        },
+        {
+          title: "Initial State",
+          description: "Show initial state predicates",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?problemLabel ?stateLabel WHERE {
-              ?problem rdf:type plan:problem .
-              ?problem rdfs:label ?problemLabel .
-              ?problem plan:hasInitialState ?state .
-              ?state rdfs:label ?stateLabel .
-            } ORDER BY ?problemLabel`),
-        defaultOpen: false
-      },
-      {
-        title: "Goal State",
-        description: "Show goal state predicates",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?problemLabel ?stateLabel WHERE {
+                ?problem rdf:type plan:problem .
+                ?problem rdfs:label ?problemLabel .
+                ?problem plan:hasInitialState ?state .
+                ?state rdfs:label ?stateLabel .
+              } ORDER BY ?problemLabel`),
+          defaultOpen: false
+        },
+        {
+          title: "Goal State",
+          description: "Show goal state predicates",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?problemLabel ?goalLabel WHERE {
-              ?problem rdf:type plan:problem .
-              ?problem rdfs:label ?problemLabel .
-              ?problem plan:hasGoalState ?goal .
-              ?goal rdfs:label ?goalLabel .
-            } ORDER BY ?problemLabel`),
-        defaultOpen: false
-      },
-      {
-        title: "Action Parameters",
-        description: "Show parameters for each action with their types",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?problemLabel ?goalLabel WHERE {
+                ?problem rdf:type plan:problem .
+                ?problem rdfs:label ?problemLabel .
+                ?problem plan:hasGoalState ?goal .
+                ?goal rdfs:label ?goalLabel .
+              } ORDER BY ?problemLabel`),
+          defaultOpen: false
+        }
+      ],
+      "Plan": [
+        {
+          title: "Plan Steps",
+          description: "List the sequence of steps in the plan",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
 
-            SELECT ?actionLabel ?paramLabel ?typeLabel WHERE {
-              ?action rdf:type plan:action .
-              ?action rdfs:label ?actionLabel .
-              ?action plan:hasParameter ?param .
-              ?param rdfs:label ?paramLabel .
-              ?param plan:ofType ?type .
-              ?type rdfs:label ?typeLabel .
-            } ORDER BY ?actionLabel ?paramLabel`),
-        defaultOpen: false
-      },
-      {
-        title: "Domain Predicates",
-        description: "List all predicates defined in the domain",
-        query: formatQuery(`
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              SELECT ?stepNumber ?stepLabel WHERE {
+                ?plan rdf:type <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#Plan> .
+                ?plan plan:hasPlanStep ?step .
+                ?step plan:hasStepNumber ?stepNumber .
+                ?step rdfs:label ?stepLabel .
+              } ORDER BY ?stepNumber`),
+          defaultOpen: false
+        },
+        {
+          title: "Plan Explanation",
+          description: "Show plan cost and detailed explanation",
+          query: formatQuery(`
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
 
-            SELECT ?domainLabel ?predicateLabel WHERE {
-              ?domain rdf:type plan:domain .
-              ?domain rdfs:label ?domainLabel .
-              ?domain plan:hasPredicate ?pred .
-              ?pred rdfs:label ?predicateLabel .
-            } ORDER BY ?domainLabel ?predicateLabel`),
-        defaultOpen: false
-      }
-    ];
+              SELECT ?planLabel ?cost ?explanation WHERE {
+                ?plan rdf:type dul:Plan .
+                ?plan rdfs:label ?planLabel .
+                ?plan plan:hasPlanCost ?cost .
+                OPTIONAL { ?plan plan:hasPlanExplanation ?explanation . }
+              }`),
+          defaultOpen: false
+        }
+      ]
+    };
 
     const container = document.getElementById(`${viewerId}-templates-content`);
+    let templateIndex = 0;
 
-    // Add templates to HTML with collapsible structure
-    templates.forEach((t, index) => {
-      const templateId = `${viewerId}-template-${index}`;
-      const escapedQuery = t.query
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
+    // Add templates grouped by category with section headers
+    Object.entries(templateGroups).forEach(([groupName, templates]) => {
+      // Add section header
       container.innerHTML += `
-          <div class="kg-query-template ${t.defaultOpen ? 'is-open' : ''}" data-template-id="${templateId}">
-            <button class="kg-template-header" aria-expanded="${t.defaultOpen}" aria-controls="${templateId}-body">
-              <div class="kg-template-header-content">
-                <span class="kg-template-title">${t.title}</span>
-                <span class="kg-template-description">${t.description}</span>
-              </div>
-              <svg class="kg-template-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 6l4 4 4-4"/>
-              </svg>
-            </button>
-            <div class="kg-template-body" id="${templateId}-body">
-              <div class="kg-template-code">
-                <pre class="kg-template-query">${escapedQuery}</pre>
-              </div>
-              <div class="kg-template-actions">
-                <button class="kg-template-run-btn" data-query="${encodeURIComponent(t.query)}">Run Query</button>
+        <div class="kg-template-section">
+          <h3 class="kg-template-section-title">${groupName}</h3>
+        </div>`;
+
+      // Add templates in this group
+      templates.forEach((t) => {
+        const templateId = `${viewerId}-template-${templateIndex}`;
+        const escapedQuery = t.query
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        container.innerHTML += `
+            <div class="kg-query-template ${t.defaultOpen ? 'is-open' : ''}" data-template-id="${templateId}">
+              <button class="kg-template-header" aria-expanded="${t.defaultOpen}" aria-controls="${templateId}-body">
+                <div class="kg-template-header-content">
+                  <span class="kg-template-title">${t.title}</span>
+                  <span class="kg-template-description">${t.description}</span>
+                </div>
+                <svg class="kg-template-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 6l4 4 4-4"/>
+                </svg>
+              </button>
+              <div class="kg-template-body" id="${templateId}-body">
+                <div class="kg-template-code">
+                  <pre class="kg-template-query">${escapedQuery}</pre>
+                </div>
+                <div class="kg-template-actions">
+                  <button class="kg-template-run-btn" data-query="${encodeURIComponent(t.query)}">Run Query</button>
+                </div>
               </div>
             </div>
-          </div>
-        `;
+          `;
+        templateIndex++;
+      });
     });
   }
 
@@ -1895,40 +1924,44 @@ define(function (require, exports, module) {
         }
 
         // Helper to format RDF terms for display
+        // Handles both SPARQL JSON results format (from resultToString) and RDF.js format
         const formatValue = term => {
           if (!term) return "";
 
-          // Handle RDFJS term objects (from Comunica)
           if (typeof term === 'object') {
-            // For Literals (including typed literals like xsd:Integer)
-            if (term.termType === 'Literal') {
-              // Extract the actual value from typed literals
-              const value = term.value;
-              // Ensure we return the value, not the datatype
-              return value ? String(value) : "";
+            // SPARQL JSON results format (from Comunica resultToString)
+            // Format: { type: "literal"|"typed-literal"|"uri"|"bnode", value: "...", datatype?: "..." }
+            if (term.type === 'literal' || term.type === 'typed-literal') {
+              // For literals, term.value contains the actual value
+              return term.value != null ? String(term.value) : "";
             }
-            // For URIs/Named Nodes
+            if (term.type === 'uri') {
+              // Extract local name from URI
+              return term.value ? term.value.split(/[#\/]/).pop() : "";
+            }
+            if (term.type === 'bnode') {
+              return '_:' + (term.value || 'blank');
+            }
+
+            // RDF.js format (termType instead of type)
+            if (term.termType === 'Literal') {
+              return term.value != null ? String(term.value) : "";
+            }
             if (term.termType === 'NamedNode' && term.value) {
               return term.value.split(/[#\/]/).pop();
             }
-            // For Blank Nodes
             if (term.termType === 'BlankNode') {
               return '_:' + (term.value || 'blank');
             }
+
             // Fallback for objects with .value property
-            if (term.value) {
-              // Make sure it's not a datatype URI
-              const strValue = String(term.value);
-              if (strValue.includes('XMLSchema#') || strValue.includes('datatype')) {
-                // This is a datatype - try to extract the actual value
-                return term.value.split('#').pop() || term.value;
-              }
-              return strValue;
+            if (term.value != null) {
+              return String(term.value);
             }
           }
 
           // Fallback for simple strings
-          return String(term).split(/[#\/]/).pop();
+          return String(term);
         };
 
         const cols = Array.from(new Set(rows.flatMap(row => Object.keys(row))));
