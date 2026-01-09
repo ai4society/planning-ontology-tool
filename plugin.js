@@ -945,16 +945,18 @@ define(function (require, exports, module) {
           title: "Plan Steps",
           description: "List the sequence of steps in the plan",
           query: formatQuery(`
-              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
               PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
+              PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
-              SELECT ?stepNumber ?stepLabel WHERE {
+              SELECT (STR(?stepNumberRaw) AS ?stepNumber) ?stepLabel WHERE {
                 ?plan rdf:type <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#Plan> .
                 ?plan plan:hasPlanStep ?step .
-                ?step plan:hasStepNumber ?stepNumber .
+                ?step plan:hasStepNumber ?stepNumberRaw .
                 ?step rdfs:label ?stepLabel .
-              } ORDER BY ?stepNumber`),
+              }
+              ORDER BY xsd:integer(?stepNumberRaw)`),
           defaultOpen: false
         },
         {
