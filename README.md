@@ -15,7 +15,7 @@ This plugin transforms PDDL (Planning Domain Definition Language) domain, proble
 
 The current plugin installation URL is:
 
-`https://rawcdn.githack.com/ai4society/planning-ontology-tool/73a25ec8ed4ab4b14b789f2929d799a7bd55c168/plugin.js`
+`https://rawcdn.githack.com/ai4society/planning-ontology-tool/f81784ef88f2aabc724b099bc695fd4628f703be/plugin.js`
 
 ---
 
