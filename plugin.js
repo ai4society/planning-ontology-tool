@@ -963,17 +963,23 @@ define(function (require, exports, module) {
           title: "Plan Explanation",
           description: "Show plan cost and detailed explanation",
           query: formatQuery(`
-              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
               PREFIX plan: <https://purl.org/ai4s/ontology/planning#>
-              PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
+              PREFIX dul:  <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
+              PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
-              SELECT ?planLabel ?cost ?explanation WHERE {
+              SELECT ?planLabel
+                    (STR(?costRaw) AS ?cost)
+                    ?explanation
+              WHERE {
                 ?plan rdf:type dul:Plan .
                 ?plan rdfs:label ?planLabel .
-                ?plan plan:hasPlanCost ?cost .
+                ?plan plan:hasPlanCost ?costRaw .
                 OPTIONAL { ?plan plan:hasPlanExplanation ?explanation . }
-              }`),
+              }
+              ORDER BY xsd:integer(?costRaw) ?planLabel
+              `),
           defaultOpen: false
         }
       ]
