@@ -1354,7 +1354,7 @@ define(function (require, exports, module) {
 
       popupContent += `
       <div class="kg-node-popup-timer">
-        Closing in <span id="${viewerId}-popup-countdown">30</span>s
+        Closing in <span id="${viewerId}-popup-countdown">10</span>s
       </div>`;
 
       popup.innerHTML = popupContent;
@@ -1382,7 +1382,7 @@ define(function (require, exports, module) {
       popup.querySelector('.kg-node-popup-close').addEventListener('click', hidePopup);
 
       // Auto-close countdown
-      let countdown = 30;
+      let countdown = 10;
       const countdownEl = document.getElementById(`${viewerId}-popup-countdown`);
 
       countdownInterval = setInterval(() => {
@@ -1390,14 +1390,14 @@ define(function (require, exports, module) {
         if (countdownEl) countdownEl.textContent = countdown;
       }, 1000);
 
-      autoCloseTimer = setTimeout(hidePopup, 30000);
+      autoCloseTimer = setTimeout(hidePopup, 10000);
     };
 
     return { showPopup, hidePopup };
   }
 
   /**
-   * Start info button glow animation every 30 seconds.
+   * Start info button glow animation every 10 seconds.
    * Returns a stop function to cancel the glow animation.
    * @param {string} viewerId
    * @returns {function} - Call this to stop the glow animation
@@ -1420,8 +1420,8 @@ define(function (require, exports, module) {
     // Initial glow after 3 seconds
     initialTimeout = setTimeout(() => {
       triggerGlow();
-      // Then every 30 seconds
-      glowInterval = setInterval(triggerGlow, 30000);
+      // Then every 10 seconds
+      glowInterval = setInterval(triggerGlow, 10000);
     }, 3000);
 
     // Return stop function
