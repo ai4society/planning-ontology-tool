@@ -464,12 +464,32 @@ def find_parens(s):
     """
         Find matching parentheses in a string and return their positions.
         Crucial for parsing nested PDDL structures correctly.
-        
+
+        IMPORTANT BEHAVIOR: This function returns after finding the FIRST
+        complete top-level parenthetical group. This means:
+
+        - For "(a (b) (c))" it returns {0: 10, 3: 5, 7: 9} - all parens in first group
+        - For "(a) (b)" it returns only {0: 2} - just the first complete group
+
+        This behavior is intentional for PDDL parsing where we typically
+        want to process one section at a time.
+
         Args:
             s: String to search for parentheses
-            
+
         Returns:
-            dict: Mapping from opening parenthesis position to closing position
+            dict: Mapping from opening parenthesis position to closing position.
+                  Empty dict if no parentheses found.
+
+        Example:
+            >>> find_parens("(and (pred1) (pred2))")
+            {0: 20, 5: 11, 13: 19}
+
+            >>> find_parens("(single)")
+            {0: 7}
+
+            >>> find_parens("no parens")
+            {}
     """
     toret = {}
     pstack = []
@@ -482,7 +502,8 @@ def find_parens(s):
             pstack.append(i)
             flag = True
         elif c == ')':
-            toret[pstack.pop()] = i
+            if pstack:  # Safety check for unbalanced parens
+                toret[pstack.pop()] = i
     return toret
 
 class DomainFunctions():
@@ -621,69 +642,114 @@ class DomainFunctions():
         """
             Extract predicate definitions from PDDL domain file.
 
+            Handles:
+            - Multiple predicates
+            - Single predicate
+            - Empty predicates section
+
             Args:
                 text: PDDL domain file content
-                
+
             Returns:
                 list: List of predicate definitions as strings
         """
-        predicate_index = text.lower().index('(:predicates')
-        predicate_closing_ind = find_parens(text[predicate_index:])[0]
+        try:
+            predicate_index = text.lower().index('(:predicates')
+        except ValueError:
+            return []
+
+        pred_section = text[predicate_index:]
+        paren_dict = find_parens(pred_section)
+
+        if not paren_dict or 0 not in paren_dict:
+            return []
+
+        predicate_closing_ind = paren_dict[0]
 
         # Extract the entire predicates section
-        file_data = text[predicate_index: predicate_index + predicate_closing_ind+1]
+        file_data = text[predicate_index:predicate_index + predicate_closing_ind + 1]
         predicates_list = []
 
-        # Find each predicate
-        for ind in range(1, len(file_data)):
+        # Find each predicate by iterating through and finding opening parens
+        ind = 1  # Start after the opening paren of (:predicates
+        while ind < len(file_data):
             if file_data[ind] == "(":
-                closing_ind = find_parens(file_data[ind:])[0]
-                present_text = file_data[ind: ind + closing_ind + 1]
-                predicates_list.append(present_text)
+                inner_dict = find_parens(file_data[ind:])
+                if inner_dict and 0 in inner_dict:
+                    closing_ind = inner_dict[0]
+                    present_text = file_data[ind:ind + closing_ind + 1]
+                    predicates_list.append(present_text)
+                    # Skip past this predicate to avoid finding nested parens
+                    ind = ind + closing_ind + 1
+                else:
+                    ind += 1
+            else:
+                ind += 1
 
         return predicates_list
 
     def get_params(self, data: str):
         """
             Extract parameters from an action definition.
-            
+
+            Handles:
+            - Typed parameters: ?x - type
+            - Untyped parameters: ?x ?y ?z
+            - Empty parameters: :parameters ()
+            - Missing parameters section
+
             Args:
                 data: Action definition string
-                
+
             Returns:
                 dict: Parameter information with values and types
         """
-        # Find index case-insensitively
         try:
             params_index = data.lower().index(':parameters')
         except ValueError:
-             # Some domains might have empty parameters or weird formatting, but usually required for action definition
             return {"parameters": {"values": [], "types": []}}
 
-        index_dict = find_parens(data[params_index:])
-        data = data[params_index:]
+        params_text = data[params_index:]
+        index_dict = find_parens(params_text)
 
-        start_ind = list(index_dict.keys())[0]
+        # No parentheses found - malformed, return empty
+        if not index_dict:
+            return {"parameters": {"values": [], "types": []}}
+
+        sorted_keys = sorted(list(index_dict.keys()))
+
+        # Get the first parenthesis pair for parameters
+        start_ind = sorted_keys[0]
         closing_ind = index_dict[start_ind]
 
-        data_string = re.split(" +", data[start_ind+1:closing_ind].replace('-', ''))
+        # Extract content between parentheses
+        params_content = params_text[start_ind + 1:closing_ind]
 
-        values = [] # Parameter names
-        types = [] # Parameter types
-        flag = 1
-        count = 1
+        # Empty parameters: :parameters ()
+        if not params_content.strip():
+            return {"parameters": {"values": [], "types": []}}
 
-        for i in data_string:
-            if '?' in i:
-                values.append(i)
-                if flag == 0:
-                    count += 1
-                flag = 0
+        # Split by whitespace, replacing hyphens with space for type separation
+        data_string = re.split(r"\s+", params_content.replace('-', ' ').strip())
+        data_string = [s for s in data_string if s]  # Remove empty strings
+
+        values = []  # Parameter names
+        types = []   # Parameter types
+        pending_params = []  # Params waiting for a type
+
+        for token in data_string:
+            if token.startswith('?'):
+                # This is a parameter variable
+                values.append(token)
+                pending_params.append(token)
             else:
-                # Add type for each accumulated parameter
-                for _ in range(count):
-                    types.append(i)
-                flag = 1
+                # This is a type - assign to all pending parameters
+                for _ in pending_params:
+                    types.append(token)
+                pending_params = []
+
+        # Handle untyped parameters at the end (no type assigned)
+        # Leave types list shorter - the ontology builder handles this
 
         return {
             "parameters": {
@@ -696,9 +762,14 @@ class DomainFunctions():
         """
             Extract preconditions from an action definition.
 
+            Handles:
+            - Multiple preconditions wrapped in (and ...)
+            - Single precondition without (and ...) wrapper
+            - Empty preconditions
+
             Args:
                 data: Action definition string
-                
+
             Returns:
                 list: List of precondition expressions
         """
@@ -707,27 +778,56 @@ class DomainFunctions():
         except ValueError:
             return []
 
-        index_dict = find_parens(data[index:])
-        data = data[index:]
+        precond_text = data[index:]
+        index_dict = find_parens(precond_text)
 
-        ind_list = sorted(list(index_dict.keys()))
+        # No parentheses found after :precondition
+        if not index_dict:
+            return []
 
-        if "and" in data[ind_list[0]:ind_list[0]+4].lower():
-            ind_list = ind_list[1:]
-            
+        sorted_keys = sorted(list(index_dict.keys()))
+
+        # Only the outer precondition parenthesis exists - single precondition case
+        if len(sorted_keys) == 1:
+            outer_start = sorted_keys[0]
+            outer_end = index_dict[outer_start]
+            single_precond = precond_text[outer_start:outer_end + 1]
+            return [single_precond]
+
+        # Multiple parenthesis pairs - check for (and ...) wrapper
+        outer_start = sorted_keys[0]
+        outer_content = precond_text[outer_start:outer_start + 5].lower()
+
+        if outer_content.startswith("(and"):
+            # Skip outer (and ...) wrapper, use inner elements
+            ind_list = sorted_keys[1:]
+        else:
+            # No (and ...) wrapper - could be nested predicates like (not (pred))
+            ind_list = sorted_keys
+
+        # Handle edge case: empty list after processing
+        if not ind_list:
+            return []
+
+        # Extract individual precondition expressions
         preconditions = []
-        previous_ind = -1
-        for ind in ind_list:
-            if ind > previous_ind:
-                preconditions.append(data[ind: index_dict[ind]+1])
-                previous_ind = index_dict[ind]+1
+        previous_end = -1
+        for idx in ind_list:
+            if idx > previous_end:
+                preconditions.append(precond_text[idx:index_dict[idx] + 1])
+                previous_end = index_dict[idx]
 
         return preconditions
 
     def get_effect(self, data: str):
         """
             Extract effects from an action definition.
-            
+
+            Handles:
+            - Multiple effects wrapped in (and ...)
+            - Single effect without (and ...) wrapper
+            - Empty effects
+
             Args:
                 data: Action definition string
 
@@ -739,22 +839,44 @@ class DomainFunctions():
         except ValueError:
             return []
 
-        index_dict = find_parens(data[index:])
-        data = data[index:]
+        effect_text = data[index:]
+        index_dict = find_parens(effect_text)
 
-        ind_list = sorted(list(index_dict.keys()))[1:]
+        # No parentheses found after :effect
+        if not index_dict:
+            return []
 
-        if "and" in data[ind_list[0]:ind_list[0]+4].lower():
-            ind_list = ind_list[1:]
+        sorted_keys = sorted(list(index_dict.keys()))
 
-        effect = []
-        previous_ind = -1
-        for ind in ind_list:
-            if ind > previous_ind:
-                effect.append(data[ind: index_dict[ind]+1])
-                previous_ind = index_dict[ind]+1
+        # Only the outer effect parenthesis exists - single effect case
+        if len(sorted_keys) == 1:
+            outer_start = sorted_keys[0]
+            outer_end = index_dict[outer_start]
+            single_effect = effect_text[outer_start:outer_end + 1]
+            return [single_effect]
 
-        return effect
+        # Multiple parenthesis pairs - check for (and ...) wrapper
+        ind_list = sorted_keys[1:]  # Skip outer parens
+
+        # Check if first inner element is '(and ...)'
+        if ind_list:
+            first_content = effect_text[ind_list[0]:ind_list[0] + 5].lower()
+            if first_content.startswith("(and"):
+                ind_list = ind_list[1:]  # Skip the 'and' wrapper
+
+        # Handle edge case: after removing (and), list might be empty
+        if not ind_list:
+            return []
+
+        # Extract individual effect expressions
+        effects = []
+        previous_end = -1
+        for idx in ind_list:
+            if idx > previous_end:
+                effects.append(effect_text[idx:index_dict[idx] + 1])
+                previous_end = index_dict[idx]
+
+        return effects
 
     def get_actions(self, text: str):
         """
@@ -869,29 +991,64 @@ class ProblemFunctions():
         """
             Extract initial state facts from a PDDL problem file.
 
+            Handles:
+            - Multiple init facts (most common)
+            - Single init fact
+            - Init with (and ...) wrapper (less common but valid)
+            - Empty init
+
             Args:
                 text: PDDL problem file content
 
             Returns:
                 list: List of initial state expressions
         """
-        start_index = text.lower().index('(:init')
-        closing_idx = find_parens(text[start_index:])[0]
-        block_text = text[start_index: start_index + closing_idx + 1]
+        try:
+            start_index = text.lower().index('(:init')
+        except ValueError:
+            return []
 
-        # Find all nested parentheses inside init
+        init_section = text[start_index:]
+        paren_dict = find_parens(init_section)
+
+        if not paren_dict or 0 not in paren_dict:
+            return []
+
+        closing_idx = paren_dict[0]
+        block_text = text[start_index:start_index + closing_idx + 1]
+
+        # Find all nested parentheses inside init block
         index_dict = find_parens(block_text)
-        ind_list = sorted(list(index_dict.keys()))[1:]
 
-        if "and" in block_text[ind_list[0]:ind_list[0]+4].lower():
-            ind_list = ind_list[1:]
+        if not index_dict:
+            return []
 
+        sorted_keys = sorted(list(index_dict.keys()))
+
+        # Only the outer (:init ...) parenthesis - empty init
+        if len(sorted_keys) == 1:
+            return []
+
+        # Skip the outer (:init ...) parenthesis
+        ind_list = sorted_keys[1:]
+
+        # Check if there's an (and ...) wrapper (unusual for :init but handle it)
+        if ind_list:
+            first_content = block_text[ind_list[0]:ind_list[0] + 5].lower()
+            if first_content.startswith("(and"):
+                ind_list = ind_list[1:]
+
+        # Handle edge case: empty after removing (and)
+        if not ind_list:
+            return []
+
+        # Extract individual state facts
         states = []
-        previous_ind = -1
-        for ind in ind_list:
-            if ind > previous_ind:
-                states.append(block_text[ind: index_dict[ind]+1])
-                previous_ind = index_dict[ind]
+        previous_end = -1
+        for idx in ind_list:
+            if idx > previous_end:
+                states.append(block_text[idx:index_dict[idx] + 1])
+                previous_end = index_dict[idx]
 
         return states
 
@@ -899,32 +1056,65 @@ class ProblemFunctions():
         """
             Extract goal state conditions from a PDDL problem file.
 
+            Handles:
+            - Multiple goals wrapped in (and ...)
+            - Single goal without (and ...) wrapper
+            - Empty goal
+
             Args:
                 text: PDDL problem file content
 
             Returns:
                 list: List of goal state expressions
         """
-        start_index = text.lower().index('(:goal')
-        closing_idx = find_parens(text[start_index:])[0]
-        block_text = text[start_index: start_index + closing_idx + 1]
+        try:
+            start_index = text.lower().index('(:goal')
+        except ValueError:
+            return []
 
-        # Find all nested parentheses inside init
+        goal_section = text[start_index:]
+        paren_dict = find_parens(goal_section)
+
+        if not paren_dict or 0 not in paren_dict:
+            return []
+
+        closing_idx = paren_dict[0]
+        block_text = text[start_index:start_index + closing_idx + 1]
+
+        # Find all nested parentheses inside goal block
         index_dict = find_parens(block_text)
-        ind_list = sorted(list(index_dict.keys()))[1:]
 
-        # Skip the outer 'and' if present (case-insensitive)
-        if "and" in block_text[ind_list[0]:ind_list[0]+4].lower():
-            ind_list = ind_list[1:]
+        if not index_dict:
+            return []
 
-        states = []
-        previous_ind = -1
-        for ind in ind_list:
-            if ind > previous_ind:
-                states.append(block_text[ind: index_dict[ind]+1])
-                previous_ind = index_dict[ind]
+        sorted_keys = sorted(list(index_dict.keys()))
 
-        return states
+        # Only the outer (:goal ...) parenthesis - empty goal
+        if len(sorted_keys) == 1:
+            return []
+
+        # Skip the outer (:goal ...) parenthesis
+        ind_list = sorted_keys[1:]
+
+        # Check if there's an (and ...) wrapper
+        if ind_list:
+            first_content = block_text[ind_list[0]:ind_list[0] + 5].lower()
+            if first_content.startswith("(and"):
+                ind_list = ind_list[1:]
+
+        # Handle edge case: empty after removing (and)
+        if not ind_list:
+            return []
+
+        # Extract individual goal conditions
+        goals = []
+        previous_end = -1
+        for idx in ind_list:
+            if idx > previous_end:
+                goals.append(block_text[idx:index_dict[idx] + 1])
+                previous_end = index_dict[idx]
+
+        return goals
 
 def create_ontology(domain_text, problem_text, plan_text=""):
     """
