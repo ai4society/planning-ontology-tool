@@ -200,11 +200,31 @@ define(function (require, exports, module) {
         .kg-root{
           width:100%; height:100%;
           display:grid;
-          grid-template-columns: auto 1fr 360px;
-          grid-template-areas: "templates canvas sparql";
+          grid-template-columns: auto 6px 1fr 6px auto;
+          grid-template-areas: "templates resize-left canvas resize-right sparql";
           background:${COLORS.surface}; overflow:hidden; position:relative;
           font-family: "Inter", "Segoe UI", Arial, sans-serif;
         }
+
+        /* Resize handles */
+        .kg-resize-handle{
+          background:${COLORS.border}; cursor:col-resize;
+          display:flex; align-items:center; justify-content:center;
+          transition:background 0.2s ease;
+        }
+        .kg-resize-handle:hover, .kg-resize-handle.active{
+          background:${COLORS.primary};
+        }
+        .kg-resize-handle::after{
+          content:''; width:2px; height:40px; max-height:50%;
+          background:${COLORS.textMuted}; border-radius:1px;
+          transition:background 0.2s ease;
+        }
+        .kg-resize-handle:hover::after, .kg-resize-handle.active::after{
+          background:${COLORS.surface};
+        }
+        .kg-resize-left{ grid-area:resize-left; }
+        .kg-resize-right{ grid-area:resize-right; }
 
         /* Header inside templates panel */
         .kg-header{
@@ -348,9 +368,9 @@ define(function (require, exports, module) {
         /* Templates panel */
         .kg-templates-panel{
           grid-area:templates;
-          width:300px; min-width:280px; max-width:50vw; height:100%;
-          background:${COLORS.background}; border-right:1px solid ${COLORS.border};
-          display:flex; flex-direction:column; overflow:hidden; resize:horizontal;
+          width:300px; min-width:200px; max-width:50vw; height:100%;
+          background:${COLORS.background}; border-right:none;
+          display:flex; flex-direction:column; overflow:hidden;
         }
         .kg-templates-header{
           padding:10px 16px; border-bottom:1px solid ${COLORS.border};
@@ -463,7 +483,8 @@ define(function (require, exports, module) {
         /* SPARQL panel */
         .sparql-panel{
           grid-area:sparql; height:100%;
-          background:${COLORS.background}; border-left:1px solid ${COLORS.border};
+          width:450px; min-width:300px; max-width:60vw;
+          background:${COLORS.background}; border-left:none;
           display:flex; flex-direction:column; overflow:hidden;
         }
         .sparql-panel-header{
@@ -687,6 +708,9 @@ define(function (require, exports, module) {
           <div class="kg-templates-content" id="${viewerId}-templates-content"></div>
         </aside>
 
+        <!-- Resize handle for templates panel -->
+        <div class="kg-resize-handle kg-resize-left" id="${viewerId}-resize-left" title="Drag to resize"></div>
+
         <!-- Canvas -->
         <div class="kg-canvas">
           <svg id="${viewerId}-svg"></svg>
@@ -726,6 +750,9 @@ define(function (require, exports, module) {
             </div>
           </div>
         </div>
+
+        <!-- Resize handle for SPARQL panel -->
+        <div class="kg-resize-handle kg-resize-right" id="${viewerId}-resize-right" title="Drag to resize"></div>
 
         <!-- SPARQL panel -->
         <aside class="sparql-panel" id="${viewerId}-sparql-panel">
@@ -995,6 +1022,69 @@ define(function (require, exports, module) {
         const sparqlPanel = document.getElementById(`${viewerId}-sparql-panel`);
         sparqlPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
+    });
+  }
+
+  /**
+   * Attach resize handlers for the templates and SPARQL panels.
+   * @param {string} viewerId
+   */
+  function attachResizeHandlers(viewerId) {
+    const root = document.getElementById(viewerId);
+    const templatesPanel = document.getElementById(`${viewerId}-templates-panel`);
+    const sparqlPanel = document.getElementById(`${viewerId}-sparql-panel`);
+    const resizeLeft = document.getElementById(`${viewerId}-resize-left`);
+    const resizeRight = document.getElementById(`${viewerId}-resize-right`);
+
+    if (!root || !templatesPanel || !sparqlPanel || !resizeLeft || !resizeRight) return;
+
+    let isResizing = false;
+    let currentHandle = null;
+    let startX = 0;
+    let startWidth = 0;
+
+    function startResize(e, handle, panel, direction) {
+      isResizing = true;
+      currentHandle = handle;
+      startX = e.clientX;
+      startWidth = panel.offsetWidth;
+      handle.classList.add('active');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      function onMouseMove(e) {
+        if (!isResizing) return;
+        const diff = direction === 'left'
+          ? e.clientX - startX
+          : startX - e.clientX;
+        const newWidth = Math.max(
+          parseInt(getComputedStyle(panel).minWidth) || 200,
+          Math.min(startWidth + diff, root.offsetWidth * 0.5)
+        );
+        panel.style.width = newWidth + 'px';
+      }
+
+      function onMouseUp() {
+        isResizing = false;
+        if (currentHandle) currentHandle.classList.remove('active');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    resizeLeft.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      startResize(e, resizeLeft, templatesPanel, 'left');
+    });
+
+    resizeRight.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      startResize(e, resizeRight, sparqlPanel, 'right');
     });
   }
 
@@ -1385,28 +1475,34 @@ define(function (require, exports, module) {
 
   /**
    * Helper to get text content from a tab, whether it's an Ace editor or a plain DOM element.
+   * IMPORTANT: We must check if element is already an Ace editor before calling ace.edit(),
+   * because ace.edit() on a non-editor element will initialize it (and clear existing content).
    * @param {string} id - DOM ID of the tab content
    * @returns {string} - The text content
    */
   function getFileContent(id) {
     if (!id) return "";
     let text = "";
+    const el = document.getElementById(id);
+    if (!el) return "";
+
+    // Check if this element is already an Ace editor by looking for the env.editor property
+    // that Ace sets on initialized editor elements. This avoids calling ace.edit() on
+    // non-editor elements which would initialize them and clear their content.
     try {
-      const editor = ace.edit(id);
-      if (editor && editor.getSession) {
-        text = editor.getSession().getValue();
+      if (el.env && el.env.editor) {
+        // Already an Ace editor, safe to get content
+        text = el.env.editor.getSession().getValue();
       }
     } catch (e) {
-      // Not an Ace editor, fall through
+      // Not an Ace editor or error accessing, fall through to DOM fallback
     }
 
+    // Fallback: get text from DOM (for solver output tabs, etc.)
     if (!text) {
-      const el = document.getElementById(id);
-      if (el) {
-        text = el.innerText || el.textContent;
-      }
+      text = el.innerText || el.textContent || "";
     }
-    return text || "";
+    return text;
   }
 
   /**
@@ -1650,6 +1746,7 @@ define(function (require, exports, module) {
 
       attachQueryTemplates(viewerId);
       attachTemplateHandlers(viewerId);
+      attachResizeHandlers(viewerId);
 
       // Start info button glow animation and get stop function
       const stopGlow = startInfoButtonGlow(viewerId);
