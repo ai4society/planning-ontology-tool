@@ -2006,7 +2006,7 @@ define(function (require, exports, module) {
    * @param {string} uri
    * @param {Map<string,string>} classMap - subject URI -> type label (lowercased).
    * @param {string} domainInstance
-   * @returns {"domain"|"problem"|"action"|"parameter"|"effect"|"precondition"|"planner"|"other"}
+   * @returns {"domain"|"problem"|"action"|"parameter"|"effect"|"precondition"|"predicate"|"planner"|"plan"|"plan_step"|"other"}
   */
   function detectClass(uri, classMap, domainInstance) {
     if (!uri)
@@ -2016,7 +2016,7 @@ define(function (require, exports, module) {
       return "domain";
 
     const type = classMap.get(uri);
-    const knownTypes = ["problem", "action", "parameter", "effect", "precondition", "planner", "plan", "plan_step"];
+    const knownTypes = ["problem", "action", "parameter", "effect", "precondition", "predicate", "planner", "plan", "plan_step"];
     return (type && knownTypes.includes(type)) ? type : "other";
   }
 
